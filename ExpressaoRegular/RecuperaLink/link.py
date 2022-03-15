@@ -2,13 +2,12 @@ import re
 
 def main():
     with open('pagina-html.html', 'r') as h:
-        line = h.readlines()
         
-        for i in line:
-            links = re.findall(r"<href", i)
-            print(links)
+        for line in h:
+            links = re.findall(r'(?<=href=")https:.*?(?=")', line)
 
+    with open('links.txt', 'w') as l:
+        [l.write(i + "\n") for i in links]
 
-
-if "__name__" == "__main__":
+if __name__ == "__main__":
     main()

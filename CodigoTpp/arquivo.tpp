@@ -1,41 +1,51 @@
 {Código tpp do Insertion Sort}
 
-insertionSort(inteiro: arr, inteiro: n)
-	inteiro: i, key, j
-	repita 
-        i = i + 1
-        key = arr[i];
-		j = i - 1;
+insertionSort(inteiro: x, inteiro: arr)
+	inteiro: chave,i, j
 
-		repita (j >= 0 && arr[j] > key)
-			arr[j + 1] = arr[j];
-			j = j - 1;
-        até (j < 0 && arr[j] < key)
+	i := 1
+
+	repita 
+        i := i + 1
+        chave := arr[i]
+		j := i - 1
+
+		repita (j >= 0 e arr[j] > chave)
+			arr[j + 1] := arr[j]
+			j := j - 1
+        até (j < 0 && arr[j] < chave)
         fim
     fim
 		
-        arr[j + 1] = key;
+        arr[j + 1] = chave
 
-    até i < n
+    até i < x
 	
 fim
 
-arrayPrint(inteiro: arr[], inteiro: n)
-{
-	inteiro: i := 0;
+{Função que passa pelo array e escreve na saída}
+escreveArray(inteiro: x, inteiro: arr[])
+
+	inteiro: i 
+	i := 0
+
     repita 
-        i = i + 1
-		escreva(arr[i])
-	escreva(endl)
-}
+        i := i + 1
+		escreva(arr[i] )
+	fim
 
-int main()
-	inteiro: arr := [12, 11, 13, 5, 6 ]
-	inteiro: lenArr := 5
-    inteiro n := lenArr / arr[2]
+fim
 
-	insertionSort(arr, n);
-	arrayPrint(arr, n);
 
-	retorna 0
+{Função principal}
+main()
+	inteiro: arr 
+	arr := [10, 8, 7, 10, 4]
+	
+	inteiro: x 
+	x := 5
+    
+	insertionSort(x,arr)
+	escreveArray(x,arr)
+
 fim
