@@ -15,6 +15,7 @@ insertionSort(inteiro: x, inteiro: arr)
 			j := j - 1
         até (j < 0 && arr[j] < chave)
         fim
+	até i < x	
     fim
 		
         arr[j + 1] = chave
@@ -32,6 +33,7 @@ escreveArray(inteiro: x, inteiro: arr[])
     repita 
         i := i + 1
 		escreva(arr[i] )
+	até i < x
 	fim
 
 fim
