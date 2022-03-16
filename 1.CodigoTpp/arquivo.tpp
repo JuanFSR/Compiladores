@@ -13,7 +13,7 @@ insertionSort(inteiro: x, inteiro: arr)
 		repita (j >= 0 e arr[j] > chave)
 			arr[j + 1] := arr[j]
 			j := j - 1
-        até (j < 0 && arr[j] < chave)
+        até (j < 0 & arr[j] < chave)
         fim
 	até i < x	
     fim
