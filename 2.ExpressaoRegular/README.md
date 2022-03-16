@@ -8,12 +8,12 @@ Este módulo fornece operações para correspondência de expressões regulares 
 Nesta atividades, utilizei a expressão regular abaixo para extrair o email, a partir do arquivo e-mails.txt.
 
 <p align="center">
-    <img src="img/expressao_regular_email.png" />
+    <img src="../img/expressao_regular_email.png" />
 </p>
 
 # 2.2 Filtrando link
 Nesta atividades, utilizei a expressão regular abaixo para extrair o link, a partir de um arquivo fonte de uma página html.
 
 <p align="center">
-    <img src="img/expressao_regular_link.png" />
+    <img src="../img/expressao_regular_link.png" />
 </p>
