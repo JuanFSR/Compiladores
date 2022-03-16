@@ -5,4 +5,4 @@ Este repositório foi desenvolvido com o objetivo de registrar as atividades des
 Como dito anteriormente, a <a href="https://docs.google.com/document/d/1e7_M-bD1RUbJAnyR8rZyJ35vKbYEN6KQG4l5L8FQ7_I/edit">gramática da linguagem TPP</a> é simplificada, sendo composta de estruturas de repetição, vetor e estruturas condicionais.
 
 # PLY
-Para construção do compilador utilizaremos o <a href="https://www.dabeaz.com/ply/ply.html" PLY</a>.
+Para construção do compilador utilizaremos o <a href="https://www.dabeaz.com/ply/ply.html"> PLY</a>.
