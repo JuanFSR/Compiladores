@@ -6,8 +6,10 @@ def main():
         line = e.readlines()
         listEmail = []
 
+
+        # Não pode começar com número
         for pos in line:
-            email = re.findall(r"\w+[\+\|.|\w]*@[.|\w]+", pos)
+            email = re.findall(r"(?<=\<)[a-z][\w|\.]*@([a-z]+\.[a-z]+)(\.[a-z]+)*(?=\>)", pos)
             listEmail.append(email[0]+ "\n")
 
 
