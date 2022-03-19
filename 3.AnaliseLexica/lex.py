@@ -45,6 +45,7 @@ tokens = [
     # COMENTARIO', # {***}
 ]
 
+# Palavras reservas (tipos, estrutura de repetições e condicionais, ler input e escrever output e retorno)
 reserved_words = {
     "se": "SE",
     "então": "ENTAO",
@@ -59,6 +60,7 @@ reserved_words = {
     "inteiro": "INTEIRO",
 }
 
+# Adiciona os tokens das palavras reservadas a lista de tokens
 tokens = tokens + list(reserved_words.values())
 
 digito = r"([0-9])"
@@ -72,24 +74,20 @@ id = (
     r"(" + letra + r"(" + digito + r"+|_|" + letra + r")*)"
 )  # o mesmo que '((letra)(letra|_|([0-9]))*)'
 
-# inteiro = r"(" + sinal + digito + r"+)"
-# inteiro = r"(" + digito + r"+)"
+# Expressão regular para identificação de um número inteiro
 inteiro = r"\d+"
 
+# Expressão regular para identificação de um número flutuante
 flutuante = (
-    # r"(" + digito + r"+\." + digito + r"+?)"
-    # (([-\+]?)([0-9]+)\.([0-9]+))'
     r'\d+[eE][-+]?\d+|(\.\d+|\d+\.\d*)([eE][-+]?\d+)?'
-    # r'[-+]?[0-9]+(\.([0-9]+)?)'
-    #r'[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?'
-    #r"(([-\+]?)([0-9]+)\.([0-9]+))"
     )
 
+# Expressão regular para identificação de uma notação científica
 notacao_cientifica = (
     r"(" + sinal + r"([1-9])\." + digito + r"+[eE]" + sinal + digito + r"+)"
 )  # o mesmo que '(([-\+]?)([1-9])\.([0-9])+[eE]([-\+]?)([0-9]+))'
 
-# Expressões Regulaes para tokens simples.
+# Expressões Regulares para identificação do lexema de símbolos, operadores lógicos e relacionais.
 # Símbolos.
 t_MAIS = r'\+'
 t_MENOS = r'-'
@@ -145,26 +143,25 @@ t_ignore = " \t"
 def t_COMENTARIO(token):
     r"(\{((.|\n)*?)\})"
     token.lexer.lineno += token.value.count("\n")
-    return token
+    # return token
 
 # Expressão regular para identificação da quebra de uma linha
 def t_newline(token):
     r"\n+"
     token.lexer.lineno += len(token.value)
 
+# Caso padrão caso um lexema inválido seja identificado
 def t_error(token):
 
     line = token.lineno
 
     message = "Caracter inválido '%s'" % token.value[0]
-
-    # print(f"{message} foi encontrado na linha {line}.")
     print(message)
+
     token.lexer.skip(1)
 
 
 def main():
-    # argv[1] = 'teste.tpp'
     aux = argv[1].split('.')
     if aux[-1] != 'tpp':
       raise IOError("Not a .tpp file!")
@@ -178,9 +175,9 @@ def main():
       tok = lexer.token()
       if not tok: 
         break      # No more input
-     # print(tok)
+        
+    # Retorno os tokens relacionados ao lexemas encontrados   
       print(tok.type)
-      #print(tok.value)
 
 # Build the lexer.
 __file__ = "01-compiladores-analise-lexica-tpplex.ipynb"
