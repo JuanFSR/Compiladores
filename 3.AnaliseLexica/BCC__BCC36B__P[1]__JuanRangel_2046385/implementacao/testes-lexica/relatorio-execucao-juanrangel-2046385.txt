@@ -1,0 +1,70 @@
+Testing with Busca_Linear_1061992.tpp
+Testing with bubble_sort-2020-2.tpp
+Testing with bubble_sort.tpp
+Testing with bubble_sort_2.tpp
+Testing with buscaLinear-2020-2.tpp
+Testing with comp.tpp
+Testing with fat.tpp
+Testing with fatorial-2020-2.tpp
+Testing with fatorial.tpp
+Testing with fibonacci-2020-2.tpp
+Testing with fibonacci.tpp
+Testing with hanoi-2020-2.tpp
+Testing with insertSort-2020-2.tpp
+Testing with insertionSort-2020-2.tpp
+Testing with maiorDoVetor.tpp
+Testing with multiplicavetor.tpp
+Testing with operacao_vetor-2020-2.tpp
+Testing with paraBinario-2020-2.tpp
+Testing with primo.tpp
+Testing with produtoEscalar.tpp
+Testing with prog_test.tpp
+Testing with sample.tpp
+Testing with selectionSort-2020-2.tpp
+Testing with selectionsort.tpp
+Testing with soma_maior_que_3.tpp
+Testing with somavet.tpp
+Testing with subtraiVetores.tpp
+Testing with teste-001.tpp
+Testing with teste-002.tpp
+Testing with teste-003.tpp
+Testing with verif_num_negativo.tpp
+Testing with verifica_valor_10.tpp
+-------------------------------------------------
+Relatório dos Testes: 
+-------------------------------------------------
+00. Teste Busca_Linear_1061992.tpp.diff      [OK]
+00. Teste bubble_sort-2020-2.tpp.diff        [OK]
+00. Teste bubble_sort.tpp.diff               [OK]
+00. Teste bubble_sort_2.tpp.diff             [OK]
+00. Teste buscaLinear-2020-2.tpp.diff        [OK]
+00. Teste comp.tpp.diff                      [OK]
+00. Teste fat.tpp.diff                       [OK]
+00. Teste fatorial-2020-2.tpp.diff           [OK]
+00. Teste fatorial.tpp.diff                  [OK]
+00. Teste fibonacci-2020-2.tpp.diff          [OK]
+00. Teste fibonacci.tpp.diff                 [OK]
+00. Teste hanoi-2020-2.tpp.diff              [OK]
+00. Teste insertSort-2020-2.tpp.diff         [OK]
+00. Teste insertionSort-2020-2.tpp.diff      [OK]
+00. Teste maiorDoVetor.tpp.diff              [OK]
+00. Teste multiplicavetor.tpp.diff           [OK]
+00. Teste operacao_vetor-2020-2.tpp.diff     [OK]
+00. Teste paraBinario-2020-2.tpp.diff        [OK]
+00. Teste primo.tpp.diff                     [OK]
+00. Teste produtoEscalar.tpp.diff            [OK]
+00. Teste prog_test.tpp.diff                 [OK]
+00. Teste sample.tpp.diff                    [OK]
+00. Teste selectionSort-2020-2.tpp.diff      [OK]
+00. Teste selectionsort.tpp.diff             [OK]
+00. Teste soma_maior_que_3.tpp.diff          [OK]
+00. Teste somavet.tpp.diff                   [OK]
+00. Teste subtraiVetores.tpp.diff            [OK]
+00. Teste teste-001.tpp.diff                 [OK]
+00. Teste teste-002.tpp.diff                 [OK]
+00. Teste teste-003.tpp.diff                 [OK]
+00. Teste verif_num_negativo.tpp.diff        [OK]
+00. Teste verifica_valor_10.tpp.diff         [OK]
+-------------------------------------------------
+OK
+-------------------------------------------------
