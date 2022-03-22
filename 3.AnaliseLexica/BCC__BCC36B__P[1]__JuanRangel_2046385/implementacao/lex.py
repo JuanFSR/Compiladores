@@ -1,6 +1,8 @@
+from statistics import mode
 from sys import argv, exit
 
 import logging
+from numpy import _2Tuple
 logging.basicConfig(
      level = logging.DEBUG,
      filename = "log.txt",
@@ -156,6 +158,9 @@ def t_error(token):
     line = token.lineno
 
     message = "Caracter inválido '%s'" % token.value[0]
+    if mode == "debug":
+        debug_message = "Caracter inválido '%s' encontrado na linha '%s'" % (token.value[0], token.lineno)
+        print(debug_message)
     print(message)
 
     token.lexer.skip(1)
@@ -163,6 +168,7 @@ def t_error(token):
 
 def main():
     aux = argv[1].split('.')
+    mode = argv[2]
     if aux[-1] != 'tpp':
       raise IOError("Not a .tpp file!")
     data = open(argv[1])
