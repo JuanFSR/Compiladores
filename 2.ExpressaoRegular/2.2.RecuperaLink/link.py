@@ -5,7 +5,7 @@ def main():
         # [^href=]*"(.*?)"
         listLink = []
         for line in h:
-            link = re.findall(r'(?<=href=")(https:\/\/)(.)+(?=")', line)
+            link = re.findall(r'(?<=href=")https:\/\/.*?(?=")', line)
             if len(link) > 0 :
                 listLink.append(link[0])
 
