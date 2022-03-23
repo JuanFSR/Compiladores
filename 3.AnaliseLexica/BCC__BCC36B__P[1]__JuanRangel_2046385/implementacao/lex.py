@@ -1,3 +1,4 @@
+from lib2to3.pgen2.pgen import DFAState
 from statistics import mode
 from sys import argv, exit
 
@@ -44,7 +45,6 @@ tokens = [
     "VIRGULA",                  # ,
     "DOIS_PONTOS",              # :
     "ATRIBUICAO",               # :=
-    # COMENTARIO', # {***}
 ]
 
 # Palavras reservas (tipos, estrutura de repetições e condicionais, ler input e escrever output e retorno)
@@ -140,12 +140,10 @@ def t_NUM_INTEIRO(token):
 
 t_ignore = " \t"
 
-# t_COMENTARIO = r'(\{((.|\n)*?)\})'
 # para poder contar as quebras de linha dentro dos comentarios
 def t_COMENTARIO(token):
     r"(\{((.|\n)*?)\})"
     token.lexer.lineno += token.value.count("\n")
-    # return token
 
 # Expressão regular para identificação da quebra de uma linha
 def t_newline(token):
@@ -172,10 +170,12 @@ def main():
     global status_mode;
     status_mode = False
 
+    # Verifico de passou o parametro para executar em modo "debug"
     if len(argv) > 2:
         if argv[2] == "debug":
             status_mode = True
 
+    # Verifica se o código passado como parametro é tpp
     if aux[-1] != 'tpp':
         error_message = "ERRO: Estamos esperando por um arquivo .tpp, porém recebemos como entrada um arquivo .%s" % aux[-1] 
         print("\n")
@@ -183,24 +183,24 @@ def main():
         print("\n")
         raise IOError("Not a .tpp file!")
         
+    # Abre o arquivo passado como parametro
     data = open(argv[1])
 
     source_file = data.read()
     lexer.input(source_file)
 
-    # Tokenize
+    # Passa por todo o arquivo
     while True:
       tok = lexer.token()
       if not tok: 
-        break      # No more input
+        break 
         
-    # Retorno os tokens relacionados ao lexemas encontrados   
+    # Retorno os tokens encontrados  
       print(tok.type)
 
 # Build the lexer.
-__file__ = "01-compiladores-analise-lexica-tpplex.ipynb"
+# __file__ = "lex.py"
 lexer = lex.lex(optimize=True,debug=True,debuglog=log)
 
 if __name__ == "__main__":
     main()
-
