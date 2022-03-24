@@ -18,7 +18,7 @@
             "include": "#functions"
         },
         {
-            "include": "#ctrl-statements"
+            "include": "#statements"
         }
     ],
     "repository": {
@@ -43,7 +43,7 @@
                 },
                 {
                     "name": "keyword.operator.symbols.tpp",
-                    "match": ":=|:"
+                    "match": ":=|:|,"
                 }
             ]
         },
@@ -72,14 +72,18 @@
                 {
                     "name": "entity.name.function.member.tpp",
                     "match": "\\b(escreva|leia)\\b"
-                }
+                },
+                {
+                    "name": "entity.name.function.member.tpp",
+                    "match": "\\b(fim|retorna)\\b)"
+                }   
             ]
         },
-        "ctrl-statements": {
+        "statements": {
             "patterns": [
                 {
                     "name": "keyword.control.tpp",
-                    "match": "\\b(se|então|senão|repita|até|fim|retorna)\\b"
+                    "match": "\\b(se|então|senão|repita|até)\\b"
                 }
             ]
         }
