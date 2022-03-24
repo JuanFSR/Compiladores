@@ -15,3 +15,5 @@ cp -r tpp/ ~./.vscode/extensions/
 ```
 cp -r tpp/ .vscode/extensions/
 ```
+
+- Após copiar a pasta "tpp" basta fechar e abrir o VsCode.
