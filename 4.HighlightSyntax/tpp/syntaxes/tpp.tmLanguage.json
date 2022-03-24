@@ -51,7 +51,7 @@
             "patterns": [
                 {
                     "name": "variable.language.tpp",
-                    "match": "inteiro|flutuante"
+                    "match": "\\b(inteiro|flutuante)\\b"
                 }
             ]
         },
