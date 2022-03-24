@@ -38,10 +38,6 @@
                     "match": "<>|<=|>=|<|>|= | \\+ | \\- | \\/ | \\*| &&| \\|\\| "
                 },
                 {
-                    "name": "keyword.operator.unary.tpp",
-                    "match": "\\!"
-                },
-                {
                     "name": "keyword.operator.symbols.tpp",
                     "match": ":=|:|,"
                 }
@@ -71,12 +67,8 @@
             "patterns": [
                 {
                     "name": "entity.name.function.member.tpp",
-                    "match": "\\b(escreva|leia)\\b"
-                },
-                {
-                    "name": "entity.name.function.member.tpp",
-                    "match": "\\b(fim|retorna)\\b)"
-                }   
+                    "match": "\\b(escreva|leia|fim|retorna)\\b"
+                } 
             ]
         },
         "statements": {
