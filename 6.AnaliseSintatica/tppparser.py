@@ -172,14 +172,12 @@ def p_indice_error(p):
                 | indice ABRE_COLCHETE error FECHA_COLCHETE
     """
 
-    print("Erro na definicao do indice. Expressao ou indice.")
+    print("Erro na definição do indice. Expressao ou indice.")
 
-    print("Erro:p[0]:{p0}, p[1]:{p1}, p[2]:{p2}, p[3]:{p3}".format(
-        p0=p[0], p1=p[1], p2=p[2], p3=p[3]))
     error_line = p.lineno(2)
     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
     logging.error(
-        "Syntax error parsing index rule at line {}".format(error_line))
+        "Erro de sintaxe ao realizar parser da regra de indice, localizado na linha{}".format(error_line))
     parser.errok()
     p[0] = father
     # if len(p) == 4:
@@ -226,6 +224,17 @@ def p_declaracao_funcao(p):
     if len(p) == 3:
         p[2].parent = pai
 
+def p_declaracao_funcao_error(p):
+    """declaracao_funcao : tipo error 
+                        | error 
+    """
+    print("Erro ao definir a função")
+    error_line = p.lineno(0)
+    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+    logging.error(
+        "Erro ao definir a função na linha{}".format(error_line))
+    parser.errok()
+    p[0] = father
 
 def p_cabecalho(p):
     """cabecalho : ID ABRE_PARENTESE lista_parametros FECHA_PARENTESE corpo FIM"""
@@ -259,6 +268,16 @@ def p_cabecalho_error(p):
                 | ID ABRE_PARENTESE lista_parametros FECHA_PARENTESE error FIM
                 | error ABRE_PARENTESE lista_parametros FECHA_PARENTESE corpo FIM 
     """
+    print("Erro na definição do cabeçalho. Lista de Parametros, corpo ou id.")
+
+    error_line = p.lineno(2)
+    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+    logging.error(
+        "Erro de sintaxe ao declarar cabeçalho, localizado na linha' {}".format(error_line))
+    parser.errok()
+    p[0] = father
+
+
 
 def p_lista_parametros(p):
     """lista_parametros : lista_parametros VIRGULA parametro
@@ -309,6 +328,15 @@ def p_parametro_error(p):
                 | parametro error FECHA_COLCHETE
                 | parametro ABRE_COLCHETE error
     """
+    print("Erro na definição dos parâmetros. Tipo, dois pontos, abre colchete ou fecha colchete.")
+        
+    error_line = p.lineno(2)
+    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+    logging.error(
+        "Erro de sintaxe ao declarar parametro, localizado na linha' {}".format(error_line))
+    parser.errok()
+    p[0] = father
+    
 
 
 def p_corpo(p):
@@ -392,6 +420,16 @@ def p_se_error(p):
         | SE expressao ENTAO corpo SENAO corpo
     """
 
+    print("Erro na definição da estrutura condicional. Se, entao, senao ou fim inexistentes.")
+
+    error_line = p.lineno(2)
+    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+    logging.error(
+        "Erro de sintaxe ao declarar a estrutura condicional, localizado na linha' {}".format(error_line))
+    parser.errok()
+    p[0] = father
+
+
 
 def p_repita(p):
     """repita : REPITA corpo ATE expressao"""
@@ -416,6 +454,14 @@ def p_repita_error(p):
     """repita : error corpo ATE expressao
             | REPITA corpo error expressao
     """
+    print("Erro na definição da estrutura de repetição. Repita ou ate.")
+    error_line = p.lineno(2)
+    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+    logging.error(
+        "Erro de sintaxe na estrutura de repetição, localizado na linha' {}".format(error_line))
+    parser.errok()
+    p[0] = father
+
 
 def p_atribuicao(p):
     """atribuicao : var ATRIBUICAO expressao"""
@@ -456,6 +502,13 @@ def p_leia(p):
 def p_leia_error(p):
     """leia : LEIA ABRE_PARENTESE error FECHA_PARENTESE
     """
+    print("Erro na definição do método de leitura. Var.")
+    error_line = p.lineno(2)
+    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+    logging.error(
+        "Erro de sintaxe ao declarar método de leitura, localizado na linha' {}".format(error_line))
+    parser.errok()
+    p[0] = father
 
 
 def p_escreva(p):
@@ -590,7 +643,7 @@ def p_operador_relacional(p):
     """operador_relacional : MENOR
                             | MAIOR
                             | IGUAL
-                            | DIFERENTE 
+                            | DIFERENCA 
                             | MENOR_IGUAL
                             | MAIOR_IGUAL
     """
@@ -607,7 +660,7 @@ def p_operador_relacional(p):
         filho = MyNode(name='IGUAL', type='IGUAL', parent=pai)
         filho_sym = MyNode(name=p[1], type='SIMBOLO', parent=filho)
     elif p[1] == "<>":
-        filho = MyNode(name='DIFERENTE', type='DIFERENTE', parent=pai)
+        filho = MyNode(name='DIFERENCA', type='DIFERENCA', parent=pai)
         filho_sym = MyNode(name=p[1], type='SIMBOLO', parent=filho)
     elif p[1] == "<=":
         filho = MyNode(name='MENOR_IGUAL', type='MENOR_IGUAL', parent=pai)
@@ -638,42 +691,42 @@ def p_operador_soma(p):
 
 
 def p_operador_logico(p):
-    """operador_logico : E
-                    | OU
+    """operador_logico : E_LOGICO
+                    | OU_LOGICO
     """
     if p[1] == "&&":
-        filho = MyNode(name='E', type='E')
+        filho = MyNode(name='E_LOGICO', type='E_LOGICO')
         filho_lexema = MyNode(name=p[1], type='SIMBOLO', parent=filho)
         p[0] = MyNode(name='operador_logico',
                       type='OPERADOR_LOGICO', children=[filho])
     else:
-        filho = MyNode(name='OU', type='OU')
+        filho = MyNode(name='OU_LOGICO', type='OU_LOGICO')
         filho_lexema = MyNode(name=p[1], type='SIMBOLO', parent=filho)
         p[0] = MyNode(name='operador_logico',
                       type='OPERADOR_SOMA', children=[filho])
 
 
 def p_operador_negacao(p):
-    """operador_negacao : NAO"""
+    """operador_negacao : NEGACAO"""
 
     if p[1] == "!":
-        filho = MyNode(name='NAO', type='NAO')
+        filho = MyNode(name='NEGACAO', type='NEGACAO')
         negacao_lexema = MyNode(name=p[1], type='SIMBOLO', parent=filho)
         p[0] = MyNode(name='operador_negacao',
                       type='OPERADOR_NEGACAO', children=[filho])
 
 
 def p_operador_multiplicacao(p):
-    """operador_multiplicacao : VEZES
-                            | DIVIDE
+    """operador_multiplicacao : MULTIPLICACAO
+                            | DIVISAO
         """
     if p[1] == "*":
-        filho = MyNode(name='VEZES', type='VEZES')
+        filho = MyNode(name='MULTIPLICACAO', type='MULTIPLICACAO')
         vezes_lexema = MyNode(name=p[1], type='SIMBOLO', parent=filho)
         p[0] = MyNode(name='operador_multiplicacao',
                       type='OPERADOR_MULTIPLICACAO', children=[filho])
     else:
-       divide = MyNode(name='DIVIDE', type='DIVIDE')
+       divide = MyNode(name='DIVISAO', type='DIVISAO')
        divide_lexema = MyNode(name=p[1], type='SIMBOLO', parent=divide)
        p[0] = MyNode(name='operador_multiplicacao',
                      type='OPERADOR_MULTIPLICACAO', children=[divide])
@@ -704,6 +757,13 @@ def p_fator(p):
 def p_fator_error(p):
     """fator : ABRE_PARENTESE error FECHA_PARENTESE
         """
+    print("Erro de sintaxe na definição do fator. Expressão.")
+    error_line = p.lineno(2)
+    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+    logging.error(
+        "Erro de sintaxe na declaração do fator, localizado na linha' {}".format(error_line))
+    parser.errok()
+    p[0] = father
 
 def p_numero(p):
     """numero : NUM_INTEIRO
@@ -787,11 +847,13 @@ def p_error(p):
         print("Erro:[{line},{column}]: Erro próximo ao token '{token}'".format(
             line=token.lineno, column=token.lineno, token=token.value))
 
-# Programa principal.
 
 
 def main():
-    # argv[1] = 'teste.tpp'
+    global root
+
+    root = None
+
     aux = argv[1].split('.')
     if aux[-1] != 'tpp':
       raise IOError("Not a .tpp file!")
