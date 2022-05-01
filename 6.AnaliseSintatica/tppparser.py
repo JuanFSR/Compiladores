@@ -27,6 +27,12 @@ from anytree import RenderTree, AsciiStyle
 #     /     |      \
 #   ...    ...     ...
 
+# Busca coluna
+def find_column(token, pos):
+  input = token.lexer.lexdata
+  line_start = input.rfind('\n', 0, token.lexpos(pos)) + 1
+  return (token.lexpos(pos) - line_start) + 1
+
 def p_programa(p):
     """programa : lista_declaracoes"""
 
@@ -92,6 +98,19 @@ def p_declaracao_variaveis(p):
     p[2] = filho
 
     p[3].parent = pai
+
+def p_declaracao_variaveis_error(p):
+    """declaracao_variaveis : tipo DOIS_PONTOS error"""
+
+    column = find_column(p, 2) 
+    print("Erro[{},{}]: Erro ao declarar variável".format(p.lineno(2), column))
+
+    error_line = p.lineno(2)
+    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+    logging.error(
+        "Erro de sintaxe ao realizar parser da regra declaração variável, localizado na linha{}".format(error_line))
+    parser.errok()
+    p[0] = father
 
 # Sub-árvore.
 #   (inicializacao_variaveis)
@@ -172,7 +191,12 @@ def p_indice_error(p):
                 | indice ABRE_COLCHETE error FECHA_COLCHETE
     """
 
-    print("Erro na definição do indice. Expressao ou indice.")
+    if len(p) == 4:
+        column = find_column(p, 1)
+    else:
+        column = find_column(p, 2)
+
+    print("Erro:[{}, {}]: Erro na definição do indice".format(p.lineno(2), column))
 
     error_line = p.lineno(2)
     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
@@ -224,17 +248,17 @@ def p_declaracao_funcao(p):
     if len(p) == 3:
         p[2].parent = pai
 
-def p_declaracao_funcao_error(p):
-    """declaracao_funcao : tipo error 
-                        | error 
-    """
-    print("Erro ao definir a função")
-    error_line = p.lineno(0)
-    father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
-    logging.error(
-        "Erro ao definir a função na linha{}".format(error_line))
-    parser.errok()
-    p[0] = father
+# def p_declaracao_funcao_error(p):
+#     """declaracao_funcao : tipo error 
+#                         | error 
+#     """
+#     print("Erro[{}]: Erro ao definir a função".format(p.lineno(2)))
+#     error_line = p.lineno(0)
+#     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
+#     logging.error(
+#         "Erro ao definir a função na linha{}".format(error_line))
+#     parser.errok()
+#     p[0] = father
 
 def p_cabecalho(p):
     """cabecalho : ID ABRE_PARENTESE lista_parametros FECHA_PARENTESE corpo FIM"""
@@ -268,7 +292,8 @@ def p_cabecalho_error(p):
                 | ID ABRE_PARENTESE lista_parametros FECHA_PARENTESE error FIM
                 | error ABRE_PARENTESE lista_parametros FECHA_PARENTESE corpo FIM 
     """
-    print("Erro na definição do cabeçalho. Lista de Parametros, corpo ou id.")
+
+    print("Erro[{}]: Erro na definição do cabeçalho. Lista de Parametros, corpo ou id".format(p.lineno(2)))
 
     error_line = p.lineno(2)
     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
@@ -328,7 +353,18 @@ def p_parametro_error(p):
                 | parametro error FECHA_COLCHETE
                 | parametro ABRE_COLCHETE error
     """
-    print("Erro na definição dos parâmetros. Tipo, dois pontos, abre colchete ou fecha colchete.")
+
+    if len(p) == 3:
+        column = find_column(p, 0)
+    elif len(p) == 4:
+        column = find_column(p, 1)
+    else:
+        if p[2] == '(':
+            column = find_column(p, 1)
+        else:
+            column = find_column(p, 2)
+
+    print("Erro[{}, {}]: Erro na definição dos parâmetros. Tipo, dois pontos, abre colchete ou fecha colchete.".format(p.lineno(2), column))
         
     error_line = p.lineno(2)
     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
@@ -454,7 +490,10 @@ def p_repita_error(p):
     """repita : error corpo ATE expressao
             | REPITA corpo error expressao
     """
-    print("Erro na definição da estrutura de repetição. Repita ou ate.")
+
+    column = find_column(p, 0)
+    print("Erro[{}]: Erro na definição da estrutura de repetição.".format(p.lineno(2), column))
+    
     error_line = p.lineno(2)
     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
     logging.error(
@@ -502,7 +541,10 @@ def p_leia(p):
 def p_leia_error(p):
     """leia : LEIA ABRE_PARENTESE error FECHA_PARENTESE
     """
-    print("Erro na definição do método de leitura. Var.")
+
+    column = find_column(p, 2)
+    print("Erro[{}, {}]: Erro na definição do método de leitura.".format(p.lineno(2), column))
+    
     error_line = p.lineno(2)
     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
     logging.error(
@@ -757,7 +799,10 @@ def p_fator(p):
 def p_fator_error(p):
     """fator : ABRE_PARENTESE error FECHA_PARENTESE
         """
-    print("Erro de sintaxe na definição do fator. Expressão.")
+    
+    column = find_column(p, 1)
+    print("Erro[{}, {}]: Erro de sintaxe na definição do expressão.".format(p.lineno(2), column))
+    
     error_line = p.lineno(2)
     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
     logging.error(
@@ -856,20 +901,20 @@ def main():
 
     aux = argv[1].split('.')
     if aux[-1] != 'tpp':
-      raise IOError("Not a .tpp file!")
+      raise IOError("Não é um arquivo .tpp!")
     data = open(argv[1])
 
     source_file = data.read()
     parser.parse(source_file)
 
     if root and root.children != ():
-        print("Generating Syntax Tree Graph...")
+        print("Gerando Gráfico da Árvore Sintática...")
         DotExporter(root).to_picture(argv[1] + ".ast.png")
         UniqueDotExporter(root).to_picture(argv[1] + ".unique.ast.png")
         DotExporter(root).to_dotfile(argv[1] + ".ast.dot")
         UniqueDotExporter(root).to_dotfile(argv[1] + ".unique.ast.dot")
         print(RenderTree(root, style=AsciiStyle()).by_attr())
-        print("Graph was generated.\nOutput file: " + argv[1] + ".ast.png")
+        print("Gráfico foi gerado.\nArquivo de saída: " + argv[1] + ".ast.png")
 
         DotExporter(root, graph="graph",
                     nodenamefunc=MyNode.nodenamefunc,
@@ -880,7 +925,7 @@ def main():
         # DotExporter(root, nodenamefunc=lambda node: node.label).to_picture(argv[1] + ".ast3.png")
 
     else:
-        print("Unable to generate Syntax Tree.")
+        print("Não foi possível gerar a Árvore Sintática.")
     print('\n\n')
 
 # Build the parser.
