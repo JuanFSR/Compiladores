@@ -248,17 +248,6 @@ def p_declaracao_funcao(p):
     if len(p) == 3:
         p[2].parent = pai
 
-# def p_declaracao_funcao_error(p):
-#     """declaracao_funcao : tipo error 
-#                         | error 
-#     """
-#     print("Erro[{}]: Erro ao definir a função".format(p.lineno(2)))
-#     error_line = p.lineno(0)
-#     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
-#     logging.error(
-#         "Erro ao definir a função na linha{}".format(error_line))
-#     parser.errok()
-#     p[0] = father
 
 def p_cabecalho(p):
     """cabecalho : ID ABRE_PARENTESE lista_parametros FECHA_PARENTESE corpo FIM"""
@@ -453,7 +442,6 @@ def p_se_error(p):
         | error expressao ENTAO corpo SENAO corpo FIM
         | SE expressao error corpo SENAO corpo FIM
         | SE expressao ENTAO corpo error corpo FIM
-        | SE expressao ENTAO corpo SENAO corpo
     """
 
     print("Erro na definição da estrutura condicional. Se, entao, senao ou fim inexistentes.")
@@ -554,7 +542,9 @@ def p_leia_error(p):
 
 
 def p_escreva(p):
-    """escreva : ESCREVA ABRE_PARENTESE expressao FECHA_PARENTESE"""
+    """escreva : ESCREVA ABRE_PARENTESE expressao FECHA_PARENTESE
+                | ESCREVA ABRE_PARENTESE var FECHA_PARENTESE
+    """
 
     pai = MyNode(name='escreva', type='ESCREVA')
     p[0] = pai
@@ -922,15 +912,12 @@ def main():
                     edgeattrfunc=MyNode.edgeattrfunc,
                     edgetypefunc=MyNode.edgetypefunc).to_picture(argv[1] + ".ast2.png")
 
-        # DotExporter(root, nodenamefunc=lambda node: node.label).to_picture(argv[1] + ".ast3.png")
 
     else:
         print("Não foi possível gerar a Árvore Sintática.")
     print('\n\n')
 
 # Build the parser.
-# __file__ = "02-compiladores-analise-sintatica-tppparser.ipynb"
-# parser = yacc.yacc(optimize=True, start='programa', debug=True, debuglog=log)
 parser = yacc.yacc(method="LALR", optimize=True, start='programa', debug=True,
                    debuglog=log, write_tables=False, tabmodule='tpp_parser_tab')
 
