@@ -204,15 +204,6 @@ def p_indice_error(p):
         "Erro de sintaxe ao realizar parser da regra de indice, localizado na linha{}".format(error_line))
     parser.errok()
     p[0] = father
-    # if len(p) == 4:
-    #     p[1] = new_node('ABRECOLCHETES', father)
-    #     p[2].parent = father
-    #     p[3] = new_node('FECHACOLCHETES', father)
-    # else:
-    #     p[1].parent = father
-    #     p[2] = new_node('ABRECOLCHETES', father)
-    #     p[3].parent = father
-    #     p[4] = new_node('FECHACOLCHETES', father)
 
 
 # Sub-árvore:
@@ -405,6 +396,7 @@ def p_se(p):
           | SE expressao ENTAO corpo SENAO corpo FIM
     """
 
+    print("SE", p[3])
     pai = MyNode(name='se', type='SE')
     p[0] = pai
 
@@ -443,9 +435,29 @@ def p_se_error(p):
         | SE expressao error corpo SENAO corpo FIM
         | SE expressao ENTAO corpo error corpo FIM
     """
+    column = 0
+    condition = ''
+    if (len(p) == 6):
+        if p[1] == 'se':
+            column = find_column(p, 2)
+            condition = 'então'
+        else:
+            condition = 'se'
+            column = find_column(p, 0)
+    else:
+        if p[1] != 'se':
+            condition = 'se'
+            column = find_column(p, 0)
+        else:
+            if (p[3] == 'então'):
+                condition = 'senão'
+                column = find_column(p, 2)
+            else:
+                condition = 'então'
+                column = find_column(p, 4)
 
-    print("Erro na definição da estrutura condicional. Se, entao, senao ou fim inexistentes.")
-
+    print("Erro[{},{}]:Erro na definição da estrutura condicional. Condição '{}' inexistente.".format(p.lineno(2), column, condition))
+    
     error_line = p.lineno(2)
     father = MyNode(name='ERROR::{}'.format(error_line), type='ERROR')
     logging.error(
@@ -879,7 +891,7 @@ def p_error(p):
 
     if p:
         token = p
-        print("Erro:[{line},{column}]: Erro próximo ao token '{token}'".format(
+        print("Erro[{line},{column}]: Erro próximo ao token '{token}'".format(
             line=token.lineno, column=token.lineno, token=token.value))
 
 
