@@ -1,6 +1,6 @@
 inteiro: a
 inteiro: b
-inteiro: c[
+inteiro: c[]
 flutuante: d[10][]
 flutuante: e[1024][
 

@@ -188,7 +188,6 @@ def p_indice(p):
 
 def p_indice_error(p):
     """indice : ABRE_COLCHETE error FECHA_COLCHETE
-                | ABRE_COLCHETE error error
                 | indice ABRE_COLCHETE error FECHA_COLCHETE
     """
 
