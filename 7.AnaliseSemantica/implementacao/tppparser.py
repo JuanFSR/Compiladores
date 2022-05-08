@@ -88,7 +88,10 @@ def p_declaracao(p):
 def p_declaracao_variaveis(p):
     """declaracao_variaveis : tipo DOIS_PONTOS lista_variaveis"""
 
-    pai = MyNode(name='declaracao_variaveis', type='DECLARACAO_VARIAVEIS')
+    line = p.lineno(2)
+    name = 'declaracao_variaveis:' + str(line)
+    print("nome %s" % name)
+    pai = MyNode(name=name, type='DECLARACAO_VARIAVEIS')
     p[0] = pai
 
     p[1].parent = pai
@@ -924,7 +927,7 @@ def main():
                     edgeattrfunc=MyNode.edgeattrfunc,
                     edgetypefunc=MyNode.edgetypefunc).to_picture(argv[1] + ".ast2.png")
 
-
+        return root
     else:
         print("Não foi possível gerar a Árvore Sintática.")
     print('\n\n')
