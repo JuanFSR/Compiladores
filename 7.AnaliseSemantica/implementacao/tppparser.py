@@ -124,6 +124,8 @@ def p_declaracao_variaveis_error(p):
 def p_inicializacao_variaveis(p):
     """inicializacao_variaveis : atribuicao"""
 
+    line = p.lineno(2)
+    name = 'inicializacao_variaveis:' + str(line)
     pai = MyNode(name='inicializacao_variaveis',
                  type='INICIALIZACAO_VARIAVEIS')
     p[0] = pai
@@ -235,7 +237,9 @@ def p_declaracao_funcao(p):
     """declaracao_funcao : tipo cabecalho 
                         | cabecalho 
     """
-    pai = MyNode(name='declaracao_funcao', type='DECLARACAO_FUNCAO')
+    line = p.lineno(2)
+    name = 'declaracao_funcao:' + str(line)
+    pai = MyNode(name=name, type='DECLARACAO_FUNCAO')
     p[0] = pai
     p[1].parent = pai
 

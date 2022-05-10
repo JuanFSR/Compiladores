@@ -1,14 +1,15 @@
 import tppparser
 import pandas as pd
 
-def encontra_indice(expressao):
+def encontra_indice_retorno(expressao):
     indice = ''
     for filhos in expressao.children:
         if filhos.label == 'numero':
-            print("Encontra indice")
+            # print("Encontra indice")
             indice = filhos.children[0].children[0].label 
-            print(indice)
-        indice = encontra_indice(filhos)
+            # print(indice)
+            return indice
+        indice = encontra_indice_retorno(filhos)
     
     return indice
 
@@ -18,34 +19,70 @@ def verifica_dimensoes(tree, dimensao, indice_1, indice_2):
     indice_2 = indice_2
     dimensao = dimensao
 
+    # print("DIMENSAO, TAM_DIM_1, TAM_DIM_2 --- dentro do verifica dimensões")
+    # print(dimensao, indice_1, indice_2)
 
     for filho in tree.children:
-        print(filho.label)
+
         if (filho.label == 'indice'):
-            print("Encontrou o lable indice %s" % filho.label)
-            dimensao += 1
+            # Posso verificar se o filho 0 do indice também é índice
+            # Se for, quer dizer que tem mais de uma dimensão
+            if (filho.children[0].label == 'indice'):
+                # print("TEM 2 DIMENSOES")
+                print("LABEL EXPRESSAO %s" % filho.children[0].children[1].label)
+                dimensao = 2
+                indice_1 = encontra_indice_retorno(filho.children[0].children[1])
+                indice_2 = encontra_indice_retorno(filho.children[2])
+                return dimensao, indice_1, indice_2
             
-            if dimensao == 1:
-                print("Dimensao 1")
-                print(filho.children[1].label)
-                indice_1 = encontra_indice(filho.children[1])
-                print(indice_1)
-            
-            elif dimensao == 2:
-                print("Dimensao 2")
-                print(filho.children[1].label)
-                indice_2 = encontra_indice(filho.children[1])
-                print("indice encontrado %s" % indice_2)
-
-        if dimensao != 0:    
-            print("DIMENSAO, TAM_DIM_1, TAM_DIM_2 --- dentro do verifica dimensões")
-            print(dimensao, indice_1, indice_2)
-
-
+            else:
+                # print("TEM 1 DIMENSAO")
+                dimensao = 1
+                indice_1 = encontra_indice_retorno(filho.children[1])
+                indice_2 = 0
+                return dimensao, indice_1, indice_2
 
         dimensao, indice_1, indice_2 = verifica_dimensoes(filho, dimensao, indice_1, indice_2)
     return dimensao, indice_1, indice_2
     
+
+def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, retorno):
+    tipo = tipo 
+    nome_funcao = nome_funcao 
+    parametros = parametros
+    
+    print("TIPO %s, NOME %s, PARAMETROS %s, RETORNO %s" % (tipo, nome_funcao, parametros, retorno))
+
+
+    for filho in declaracao_funcao.children:
+        print("PASSANDO PELA DECLARACAO FUNCAO %s" % filho.label)
+        if (filho.label == 'tipo'):
+            tipo = filho.children[0].children[0].label
+            return filho, tipo, nome_funcao, parametros, retorno
+
+        elif (filho.label == 'lista_parametros'):
+            if (filho.children[0].label == 'vazio'):
+                parametros = 'vazio'
+            else:
+                print("TEM UM PARAMETRO OU MAIS")
+            
+            return filho, tipo, nome_funcao, parametros, retorno
+        
+        elif (filho.label == 'cabecalho'):
+            nome_funcao = filho.children[0].children[0].label
+            return filho, tipo, nome_funcao, parametros, retorno
+        
+        elif (filho.label == 'retorna'):
+            token = filho.children[0].label
+            retorno = ''
+
+            retorno = encontra_indice_retorno(filho.children[2])
+            return filho, tipo, nome_funcao, parametros, retorno
+
+        encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, retorno)
+
+    return filho, tipo, nome_funcao, parametros, retorno
+        
 
 def monta_tabela_simbolos(tree, tabela_simbolos):
     dimensao_1 = ''
@@ -56,25 +93,39 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
         # print(filho.label)
         if ('declaracao_variaveis' in filho.label):
             # Caso ele não seja um vetor ou uma matriz
-            print("LABEL DECLARACAO VARIAVEIS", filho.label)
-            dimensao, dimensao_1, dimensao_2 = verifica_dimensoes(filho, 0, '0', '0')
-            print("Dimensoes monta tabela")
-            print(dimensao, dimensao_1, dimensao_2)
+            # print("LABEL DECLARACAO VARIAVEIS", filho.label)
+            dimensao, dimensao_1, dimensao_2 = verifica_dimensoes(filho, 0, 0, 0)
 
             # Descomentar isso depois
-            if (int(dimensao) >= 1):
+            if (int(dimensao) > 1):
                 print("É uma declaração de uma matriz ou um vetor")
+                print()
+                linha_declaracao = filho.label.split(':')
+                linha_dataframe = ['ID',str(filho.children[2].children[0].children[0].children[0].label), str(filho.children[0].children[0].children[0].label), dimensao, dimensao_1, dimensao_2, escopo, 'N', linha_declaracao[1]]
+                tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
                 return tabela_simbolos
             else:
-                print("Adiciono isso na tabela de simbolos")
+                print("É uma declaração de uma variável com uma dimensão")
                 print()
                 linha_declaracao = filho.label.split(':')
                 # print("LINHA DECLARACAO", linha_declaracao[1])
-                linha_dataframe = ['ID',str(filho.children[2].children[0].children[0].children[0].label), str(filho.children[0].children[0].children[0].label), '0', '0', '0', escopo, 'N', linha_declaracao[1]]
+                linha_dataframe = ['ID',str(filho.children[2].children[0].children[0].children[0].label), str(filho.children[0].children[0].children[0].label), dimensao, dimensao_1, dimensao_2, escopo, 'N', linha_declaracao[1]]
                 tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
                 # print(filho.children[0].children[0].children[0].label, filho.children[1].children[0].label, filho.children[2].children[0].children[0].children[0].label)
                 return tabela_simbolos
+        
+        elif ('declaracao_funcao' in filho.label):
+            tipo = ''
+            nome_funcao = ''
+
+            # Não se esquecer de verificar também os parâmetros da função
+            linha_declaracao = filho.label.split(':')
+            _, tipo, nome_funcao, parametros, retorno = encontra_dados_funcao(filho, '', '', '', '')
+            print("TIPO %s, NOME %s, PARAMETROS %s, RETORNO %s" % (tipo, nome_funcao, parametros, retorno))
+
         monta_tabela_simbolos(filho, tabela_simbolos)
+
+    return tabela_simbolos
 
 def verifica_regras_semanticas(tabela_simbolos):
     # Verifica se existe a função principal
