@@ -9,5 +9,4 @@ inteiro: c[1.2]
 
 inteiro principal()
   c[5.8] := 10
-  retorna(0)
 fim

@@ -586,7 +586,9 @@ def p_escreva(p):
 def p_retorna(p):
     """retorna : RETORNA ABRE_PARENTESE expressao FECHA_PARENTESE"""
 
-    pai = MyNode(name='retorna', type='RETORNA')
+    line = p.lineno(2)
+    name = 'retorna:' + str(line)
+    pai = MyNode(name=name, type='RETORNA')
     p[0] = pai
 
     filho1 = MyNode(name='RETORNA', type='RETORNA', parent=pai)
