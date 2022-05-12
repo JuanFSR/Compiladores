@@ -3,6 +3,7 @@ import pandas as pd
 
 global escopo
 escopo = 'global'
+pd.set_option('display.max_columns', None)
 
 def encontra_indice_retorno(expressao):
     indice = ''
@@ -15,6 +16,12 @@ def encontra_indice_retorno(expressao):
             # print(indice)
             tipo_retorno = filhos.children[0].label
             return tipo_retorno, indice
+
+        elif filhos.label == 'ID':
+            indice = filhos.children[0].label
+            tipo_retorno = 'parametro'
+            return tipo_retorno, indice
+
         tipo_retorno,indice = encontra_indice_retorno(filhos)
     
     return tipo_retorno,indice
@@ -90,7 +97,22 @@ def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, reto
         tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno = encontra_dados_funcao(filho, tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno)
 
     return tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno
-        
+
+def encontra_parametros(no_parametro, parametros)
+    no_parametro = no_parametro
+    parametros = parametros
+    parametro = ''
+
+    for no in no_parametro:
+        if no.label = 'expressao':
+            _, parametro = encontra_indice_retorno(no)
+            parametros.append(parametro)
+            
+            return parametros
+
+        encontra_parametros(no_parametro, parametros)
+    return parametros
+
 
 def monta_tabela_simbolos(tree, tabela_simbolos):
     dimensao_1 = ''
@@ -136,22 +158,34 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             linha_dataframe = ['ID', nome_funcao, tipo, 0, 0, 0, escopo, 'N', linha_declaracao[1], 'S']
             tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
             
-            # Verificar se realmente veio algo no retorno
-            linha_dataframe = ['ID', 'retorna', tipo, 0, 0, 0, escopo, 'N', linha_retorno,'N']
-            tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
+            if (retorno != ''):
+                # Verificar se realmente veio algo no retorno
+                linha_dataframe = ['ID', 'retorna', tipo, 0, 0, 0, escopo, 'N', linha_retorno,'S']
+                tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
 
+        elif ('chamada_funcao' in filho.label):
+            nome_funcao = ''
+            # Utilizar um dicionario talvez
+            parametros = []
+
+            nome_funcao = filho.children[0].label
+            parametros = encontra_parametros(filho, parametros)
+
+            print("PARAMETROS")
+            print(parametros)
 
         monta_tabela_simbolos(filho, tabela_simbolos)
 
     return tabela_simbolos
 
 def verifica_regras_semanticas(tabela_simbolos):
+    variaveis = tabela_simbolos['Lexema'].unique()
+
     # Verifica se existe a função principal
-    if ('principal' not in tabela_simbolos['Lexema']):
+    if ('principal' not in variaveis):
         print('Erro: Função principal não declarada')
 
     # Verifica se as variaveis foram inicializadas
-    variaveis = tabela_simbolos['Lexema'].unique()
 
     # Passa por tudo que foi declarado
     for var in variaveis:
@@ -179,7 +213,10 @@ def verifica_regras_semanticas(tabela_simbolos):
         
         else:
             # Caso o lexema seja principal verificar se há um retorno e o tipo dele
-            pass
+            tabela_retorno = tabela_simbolos.loc[tabela_simbolos['Lexema'] == 'retorno']
+
+            if (tabela_retorno.shape[0] == 0):
+                print("Erro: Função principal deveria retornar inteiro, mas retorna vazio")
 
 
 def main():
@@ -196,7 +233,7 @@ def main():
     # tabela_simbolos.loc[len(tabela_simbolos)] = data
     # Montar a tabela de símbolos
     tabela_simbolos = monta_tabela_simbolos(tree, tabela_simbolos)
-    # verifica_regras_semanticas(tabela_simbolos)
+    verifica_regras_semanticas(tabela_simbolos)
     print()
     print("TABELA DE SÍMBOLOS")
     print(tabela_simbolos)

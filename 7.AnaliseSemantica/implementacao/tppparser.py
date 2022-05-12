@@ -849,7 +849,9 @@ def p_numero(p):
 def p_chamada_funcao(p):
     """chamada_funcao : ID ABRE_PARENTESE lista_argumentos FECHA_PARENTESE"""
 
-    pai = MyNode(name='chamada_funcao', type='CHAMADA_FUNCAO')
+    line = p.lineno(2)
+    name = 'chamada_funcao:' + str(line)
+    pai = MyNode(name=name, type='CHAMADA_FUNCAO')
     p[0] = pai
     if len(p) > 2:
         filho1 = MyNode(name='ID', type='ID', parent=pai)
