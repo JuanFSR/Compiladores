@@ -98,19 +98,25 @@ def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, reto
 
     return tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno
 
-def encontra_parametros(no_parametro, parametros)
+def encontra_parametros(no_parametro, parametros):
     no_parametro = no_parametro
     parametros = parametros
-    parametro = ''
+    parametro = {}
+    tipo = ''
+    nome = ''
 
-    for no in no_parametro:
-        if no.label = 'expressao':
-            _, parametro = encontra_indice_retorno(no)
+
+    for no in no_parametro.children:
+        if (no.label == 'expressao'):
+            tipo, nome = encontra_indice_retorno(no)
+            parametro[nome] = tipo
+            print("PARAMETRO DICIONARIO")
+            print(parametro)
             parametros.append(parametro)
             
             return parametros
 
-        encontra_parametros(no_parametro, parametros)
+        encontra_parametros(no, parametros)
     return parametros
 
 
@@ -167,12 +173,68 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             nome_funcao = ''
             # Utilizar um dicionario talvez
             parametros = []
+            token = ''
+            init = ''
 
             nome_funcao = filho.children[0].label
             parametros = encontra_parametros(filho, parametros)
 
+            linha_declaracao = filho.label.split(':')
+            linha_declaracao = linha_declaracao[1]
+
             print("PARAMETROS")
             print(parametros)
+
+            # Procuro primeiramente se existe uma declaração dessa função
+            declaracao_funcao = tabela_simbolos.loc[tabela_simbolos['Lexema'] == nome_funcao]
+
+            if len(declaracao_funcao) > 0:
+                tipo_funcao = declaracao_funcao['Tipo']
+            else:
+                tipo_funcao = 'vazio'
+
+            # Cria linha da chamada da função
+            linha_dataframe = ['ID', filho.children[0].children[0].label, tipo_funcao, 0, 0, 0, escopo, 'N', linha_declaracao, 'chamada_funcao']
+            tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
+
+            if len(parametros) >= 1:
+                for param in parametros:
+                    for nome_param, tipo_param in param.items():
+                        # Pesquiso no tabela para ver se foi declarada
+                        parametro_inicializado = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_param) & (tabela_simbolos['init'] == 'S')]
+                        parametro_declarado = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_param)]
+                        
+                        print("VERIFICANDO SE A VARIAVEL FOI DECLARADA")
+                        print(parametro_declarado)
+                        # Verifica se a variável foi declarada
+                        if len(parametro_declarado) > 0:
+                            tipo_param = parametro_declarado['Tipo']
+                        else:
+                            tipo_param = 'vazio'
+
+                        if len(parametro_inicializado) > 0:
+                            init = 'S'
+                        else:
+                            init = 'N'
+
+                        # Verifico se o tipo do tipo é parametro
+                        # Caso seja, o Token é ID
+                        # if (tipo_param == 'parametro'):
+                        #     token = 'ID'
+                        # else:
+                        #     token = tipo_param
+
+                        # print("VERIFICA SE ENCONTRA PARAMETRO INICIALIZADO")
+                        # print(nome_param, tipo_param)
+
+                        print("TIPO", tipo_param)
+                        linha_dataframe = ['ID', nome_param, tipo_param, 0, 0, 0, escopo, init, linha_declaracao, 'N']
+                        # tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
+                        print("LINHA DATAFRAME")
+                        print(linha_dataframe)
+
+
+
 
         monta_tabela_simbolos(filho, tabela_simbolos)
 
