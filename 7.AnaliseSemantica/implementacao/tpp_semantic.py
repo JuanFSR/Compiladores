@@ -44,30 +44,36 @@ def encontra_tipo_nome_parametro(parametro, tipo, nome):
         tipo, nome = encontra_tipo_nome_parametro(param, tipo, nome)
     return tipo, nome
 
-def encontra_indice_retorno(expressao):
-    indice = ''
-    tipo_retorno = ''
+def encontra_indice_retorno(expressao, indice, tipo_retorno):
+    indice = indice
+    tipo_retorno = tipo_retorno
 
     for filhos in expressao.children:
         if filhos.label == 'numero':
             # print("Encontra indice")
             indice = filhos.children[0].children[0].label 
             # print(indice)
-            tipo_retorno = filhos.children[0].label
+            # tipo_retorno = filhos.children[0].label
+            tipo_retorno.append(filhos.children[0].label)
 
             if (tipo_retorno == 'NUM_INTEIRO'):
-                tipo_retorno = 'inteiro'
+                # tipo_retorno = 'inteiro'
+                tipo_retorno.append('inteiro')
 
             print("ENCONTRA INDICE RETORNO %s  %s" % (tipo_retorno, indice))
             return tipo_retorno, indice
 
         elif filhos.label == 'ID':
             print("ENCONTREI UMA VARIAVEL %s" % filhos.children[0].label)
-            indice = filhos.children[0].label
-            tipo_retorno = 'parametro'
+            # indice = filhos.children[0].label
+            # tipo_retorno = 'parametro'
+            indice.append(filhos.children[0].label)
+            tipo_retorno.append('parametro')
+
+
             return tipo_retorno, indice
 
-        tipo_retorno,indice = encontra_indice_retorno(filhos)
+        tipo_retorno,indice = encontra_indice_retorno(filhos, indice, tipo_retorno)
     
     return tipo_retorno,indice
 
@@ -89,14 +95,14 @@ def verifica_dimensoes(tree, dimensao, indice_1, indice_2):
                 # print("TEM 2 DIMENSOES")
                 print("LABEL EXPRESSAO %s" % filho.children[0].children[1].label)
                 dimensao = 2
-                _, indice_1 = encontra_indice_retorno(filho.children[0].children[1])
-                _, indice_2 = encontra_indice_retorno(filho.children[2])
+                _, indice_1 = encontra_indice_retorno(filho.children[0].children[1], [], [])
+                _, indice_2 = encontra_indice_retorno(filho.children[2], [], [])
                 return dimensao, indice_1, indice_2
             
             else:
                 # print("TEM 1 DIMENSAO")
                 dimensao = 1
-                _, indice_1 = encontra_indice_retorno(filho.children[1])
+                _, indice_1 = encontra_indice_retorno(filho.children[1], [], [])
                 indice_2 = 0
                 return dimensao, indice_1, indice_2
 
@@ -141,7 +147,7 @@ def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, reto
             token = filho.children[0].label
             retorno = ''
 
-            tipo_retorno, retorno = encontra_indice_retorno(filho.children[2])
+            tipo_retorno, retorno = encontra_indice_retorno(filho.children[2], [], [])
             return tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno
 
         tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno = encontra_dados_funcao(filho, tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno)
@@ -182,7 +188,7 @@ def encontra_parametros(no_parametro, parametros):
         print("NO EXPRESSAO LABEL %s" % no.label)
 
         if (no.label == 'expressao'):
-            tipo, nome = encontra_indice_retorno(no)
+            tipo, nome = encontra_indice_retorno(no, [], [])
             parametro[nome] = tipo
             print("PARAMETRO DICIONARIO 1")
             print(parametro)
@@ -333,7 +339,7 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             valor_atribuido = {}
             valores = []
 
-            tipo, valor = encontra_indice_retorno(filho.children[2])
+            tipo, valor = encontra_indice_retorno(filho.children[2], [], [])
 
             linha_declaracao = filho.label.split(':')
             linha_declaracao = linha_declaracao[1]
