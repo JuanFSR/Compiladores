@@ -2,7 +2,7 @@
 {Erro: Função principal deveria retornar inteiro, mas retorna vazio}
 
 inteiro func(inteiro: x, inteiro: y)
-	retorna(x + y)
+	retorna(x - y)
 fim
 
 inteiro principal()

@@ -239,6 +239,7 @@ def p_declaracao_funcao(p):
     """
     line = p.lineno(2)
     name = 'declaracao_funcao:' + str(line)
+    print("DECLARACAO %s" % name)
     pai = MyNode(name=name, type='DECLARACAO_FUNCAO')
     p[0] = pai
     p[1].parent = pai
