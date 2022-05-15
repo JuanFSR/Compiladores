@@ -512,7 +512,10 @@ def p_repita_error(p):
 def p_atribuicao(p):
     """atribuicao : var ATRIBUICAO expressao"""
 
-    pai = MyNode(name='atribuicao', type='ATRIBUICAO')
+    line = p.lineno(2)
+    name = 'atribuicao:' + str(line)
+
+    pai = MyNode(name=name, type='ATRIBUICAO')
     p[0] = pai
 
     p[1].parent = pai
