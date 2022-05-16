@@ -53,8 +53,8 @@ def encontra_valores_retorno(retorna, retorno):
         expressoes = ['expressao_aditiva', 'expressao_multiplicativa', ]
         if (ret.label in expressoes):
             retorno = encontra_expressao_retorno(ret, retorno)
-            print("AQUIIIIIIIIIIIIIIIIIIIIIIII")
-            print(retorno)
+            # print("AQUIIIIIIIIIIIIIIIIIIIIIIII")
+            # print(retorno)
             return retorno
         
         encontra_valores_retorno(ret, retorno)
@@ -66,7 +66,7 @@ def encontra_tipo_nome_parametro(parametro, tipo, nome):
     nome = nome
     
     for param in parametro.children:
-        print("PARAM LABELLL %s" % param.label)
+        # print("PARAM LABELLL %s" % param.label)
 
         if param.label == 'INTEIRO':
             tipo = param.children[0].label
@@ -100,11 +100,11 @@ def encontra_indice_retorno(expressao):
             elif (tipo_retorno == 'NUM_PONTO_FLUTUANTE'):
                 tipo_retorno = 'inteiro'
 
-            print("ENCONTRA INDICE RETORNO %s  %s" % (tipo_retorno, indice))
+            # print("ENCONTRA INDICE RETORNO %s  %s" % (tipo_retorno, indice))
             return tipo_retorno, indice
 
         elif filhos.label == 'ID':
-            print("ENCONTREI UMA VARIAVEL %s" % filhos.children[0].label)
+            # print("ENCONTREI UMA VARIAVEL %s" % filhos.children[0].label)
             indice = filhos.children[0].label
             tipo_retorno = 'parametro'
 
@@ -147,12 +147,13 @@ def verifica_dimensoes(tree, dimensao, indice_1, indice_2):
     return dimensao, indice_1, indice_2
     
 
-def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno):
+def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, retorno_tipo_valor, tipo_retorno, linha_retorno):
     tipo = tipo 
     nome_funcao = nome_funcao 
     parametros = parametros
     tipo_retorno = tipo_retorno
     linha_retorno = linha_retorno
+    retorno_tipo_valor = retorno_tipo_valor
 
     global escopo
     
@@ -184,12 +185,15 @@ def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, reto
             token = filho.children[0].label
             retorno = ''
 
-            tipo_retorno, retorno = encontra_indice_retorno(filho.children[2])
-            return tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno
+            # tipo_retorno, retorno_tipo_valor = encontra_indice_retorno(filho.children[2])
+            tipo_retorno = 'vazio'
 
-        tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno = encontra_dados_funcao(filho, tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno)
 
-    return tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno
+            return tipo, nome_funcao, parametros, retorno_tipo_valor, tipo_retorno, linha_retorno
+
+        tipo, nome_funcao, parametros, retorno_tipo_valor, tipo_retorno, linha_retorno = encontra_dados_funcao(filho, tipo, nome_funcao, parametros, retorno_tipo_valor, tipo_retorno, linha_retorno)
+
+    return tipo, nome_funcao, parametros, retorno_tipo_valor, tipo_retorno, linha_retorno
 
 def encontra_parametro_funcao(no, parametros):
 
@@ -198,14 +202,14 @@ def encontra_parametro_funcao(no, parametros):
 
     for n in no.children:
         if (no.label == 'parametro'):
-            print("ENTRE AQUI")
+            # print("ENTRE AQUI")
             tipo, nome = encontra_tipo_nome_parametro(no, '', '')
-            print("TIPO %s NOME %s" % (tipo, nome))
+            # print("TIPO %s NOME %s" % (tipo, nome))
 
             parametro[nome] = tipo
 
-            print("PARAMETRO DICIONARIO 2")
-            print(parametro)
+            # print("PARAMETRO DICIONARIO 2")
+            # print(parametro)
             parametros.append(parametro)
 
             return parametros
@@ -222,13 +226,13 @@ def encontra_parametros(no_parametro, parametros):
 
 
     for no in no_parametro.children:
-        print("NO EXPRESSAO LABEL %s" % no.label)
+        # print("NO EXPRESSAO LABEL %s" % no.label)
 
         if (no.label == 'expressao'):
             tipo, nome = encontra_indice_retorno(no)
             parametro[nome] = tipo
-            print("PARAMETRO DICIONARIO 1")
-            print(parametro)
+            # print("PARAMETRO DICIONARIO 1")
+            # print(parametro)
             parametros.append(parametro)
             
             return parametros
@@ -273,12 +277,15 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             nome_funcao = ''
             tipo_retorno = ''
             parametros = []
+            retorno = []
+            tipos = []
 
-            # Esqueci que é necessário encontrar os parâmetros
+            # Encontrando os parametros
+            # VERIFICAR SE ELES TEM DIMENSAO IGUAL A 1 OU MAIOR
             parametros = encontra_parametro_funcao(filho, parametros)
 
-            print("PARAMETROS DA FUNCAO DECLARADAAAAAAAAAAAAA")
-            print(parametros)
+            # print("PARAMETROS DA FUNCAO DECLARADAAAAAAAAAAAAA")
+            # print(parametros)
 
             # Não se esquecer de verificar também os parâmetros da função
             linha_declaracao = filho.label.split(':')
@@ -287,13 +294,60 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             tipo, nome_funcao, _, retorno, tipo_retorno, linha_retorno = encontra_dados_funcao(filho, '', '', '', '', '', '')
             # print("TIPO %s, NOME %s, PARAMETROS %s, RETORNO %s TIPO_RETORNADO %s LINHA RETORNO %s" % (tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno))
             
+            # print("AQUI RETORNNAAAAAAAAAAAAAAAAA")
+            # print(retorno)
+
             linha_dataframe = ['ID', nome_funcao, tipo, 0, 0, 0, escopo, 'N', linha_declaracao, 'S', parametros, []]
             tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
             
+            # Declara as variáveis passada por parametro 
+            for p in parametros:
+                for nome_param, tipo_param in p.items():
+                    # print("PARAMETROS DA FUNCAO DECLARADAAAAAAAAAAAAA")
+                    # print(nome_param, tipo_param)
+
+                    linha_dataframe = ['ID', nome_param, tipo_param, 0, 0, 0, escopo, 'S', linha_declaracao, 'N', [], []]
+                    tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
+
+
+
             if (retorno != ''):
+                # Verifica o tipo do retorno
+                pos = 0
+                muda_tipo_retorno_lista = []
+                for ret in retorno:
+                    for nome_retorno, tipo_retorno in ret.items():
+
+                        # tipos_variaveis_retorno.append(tipo_retorno)
+
+                        # procura na tabela de símbolos as variáveis
+                        tipo_retorno = tabela_simbolos.loc[tabela_simbolos['Lexema'] == nome_retorno]
+                        
+                        tipo_variaveis_retorno = tipo_retorno['Tipo'].values
+                        tipo_variaveis_retorno = tipo_variaveis_retorno[0]
+
+                        muda_tipo_retorno = {}
+                        muda_tipo_retorno[nome_retorno] = tipo_variaveis_retorno
+                        muda_tipo_retorno_lista.append(muda_tipo_retorno)
+
+
+                        tipos.append(tipo_variaveis_retorno)
+                        pos += 1
+                        # print("RETORNO NOMEEEEEEEEEEEEEEEE TIPOOOOOOOOOOOOOO")
+                        # print(nome_retorno, tipo_variaveis_retorno)
+
+
+                if len(tipos) > 0:
+                    if ('flutuante' in tipos):
+                        tipo = 'flutuante'
+                    else:
+                        tipo = 'inteiro'
+
                 # Verificar se realmente veio algo no retorno
-                linha_dataframe = ['ID', 'retorna', tipo, 0, 0, 0, escopo, 'N', linha_retorno,'S', [], []]
+                linha_dataframe = ['ID', 'retorna', tipo, 0, 0, 0, escopo, 'N', linha_retorno,'S', [], muda_tipo_retorno_lista]
                 tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
+
+
 
         elif ('chamada_funcao' in filho.label):
             nome_funcao = ''
@@ -305,8 +359,8 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             nome_funcao = filho.children[0].children[0].label
             parametros = encontra_parametros(filho, parametros)
 
-            print("CHAMADA FUNCAOOOOOOO")
-            print(parametros)
+            # print("CHAMADA FUNCAOOOOOOO")
+            # print(parametros)
 
             linha_declaracao = filho.label.split(':')
             linha_declaracao = linha_declaracao[1]
@@ -324,16 +378,16 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             else:
                 tipo_funcao = 'vazio'
 
-            print("LENN DECLARACAO FUNCAO")
-            print(len(declaracao_funcao), tipo_funcao)
+            # print("LENN DECLARACAO FUNCAO")
+            # print(len(declaracao_funcao), tipo_funcao)
 
             parametro_list = []
 
             if len(parametros) >= 1:
                 for param in parametros:
                     for nome_param, tipo_param in param.items():
-                        print("CHAMADA FUNCAOOOOOOO")
-                        print(nome_param, tipo_param)
+                        # print("CHAMADA FUNCAOOOOOOO")
+                        # print(nome_param, tipo_param)
 
                         parametro_dic = {}
 
@@ -390,7 +444,7 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
                 tipo = variavel_declarada['Tipo'].values
                 tipo = tipo[0]
 
-                print("É UMA VARIÁVEL %s" % str(tipo))
+                # print("É UMA VARIÁVEL %s" % str(tipo))
             
             if tipo == 'NUM_INTEIRO':
                 tipo = 'inteiro'
@@ -420,11 +474,11 @@ def verifica_regras_semanticas(tabela_simbolos):
     funcoes = tabela_simbolos.loc[tabela_simbolos['funcao'] != 'N']
     funcoes = funcoes['Lexema'].unique()
 
-    print("VARIAVEIS")
-    print(variaveis)
+    # print("VARIAVEIS")
+    # print(variaveis)
 
-    print("FUNÇÕES / CHAMADAS DE FUNÇÕES")
-    print(funcoes)
+    # print("FUNÇÕES / CHAMADAS DE FUNÇÕES")
+    # print(funcoes)
 
 
 
@@ -436,8 +490,8 @@ def verifica_regras_semanticas(tabela_simbolos):
 
     # Passa por tudo que foi declarado (somente variáveis)
     for var in variaveis:
-        print("VARRR")
-        print(variaveis)
+        # print("VARRR")
+        # print(variaveis)
         # Verifica se não é a função principal
         inicializada = False
 
@@ -455,6 +509,14 @@ def verifica_regras_semanticas(tabela_simbolos):
             # print(val)
             if (tabela_simbolos.iloc[0]['init'] != 'N'):
                 inicializada = True
+
+        # Procura nos retornos onde o escopo é diferente de principal
+        # E vê se está no retorno
+        # MELHOR PASSAR COM O ESCOPO AO PASSAR PELAS VARIÁVEIS
+        # DESSE JEITO SE TIVER UMA VARIÁVEL COM O MESMO NOME EM ESCOPOS DIFERENTES NÃO VAI SER CONSIDERADO
+        # retorna_parametros = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == 'retorna') & ]
+
+
 
         if (inicializada == False):
             print("Aviso: Variável '%s' declarada e não utilizada" % var)
@@ -480,6 +542,28 @@ def verifica_regras_semanticas(tabela_simbolos):
                 # Se há uma declaração
                 if len(declaracao_funcao) < 1:
                     print("Erro: Chamada a função %s que não foi declarada" % func)
+                else:
+                # Agora verifico a quantidade de parâmetro
+                    quantidade_parametros_chamada = chamada_funcao['parametros']
+                    quantidade_parametros_chamada = quantidade_parametros_chamada.values
+                    quantidade_parametros_chamada = quantidade_parametros_chamada[0]
+
+                    quantidade_parametros_declaracao_funcao = declaracao_funcao['parametros']
+                    quantidade_parametros_declaracao_funcao = quantidade_parametros_declaracao_funcao.values
+                    quantidade_parametros_declaracao_funcao = quantidade_parametros_declaracao_funcao[0]
+                    
+                    # print("QUANTIDADE DE PARAMETROS CHAMADA")
+                    # print(quantidade_parametros_chamada, len(quantidade_parametros_chamada))
+
+                    # print("QUANTIDADE DE PARAMETROS DECLARACAO")
+                    # print(quantidade_parametros_declaracao_funcao, len(quantidade_parametros_declaracao_funcao))
+
+                    if len(quantidade_parametros_chamada) < len(quantidade_parametros_declaracao_funcao):
+                        print("Erro: Chamada à função %s com número de parâmetros menor que o declarado" % func)
+                    
+                    elif len(quantidade_parametros_chamada) > len(quantidade_parametros_declaracao_funcao):
+                        print("Erro: Chamada à função '%s' com número de parâmetros maior que o declarado" % func)
+            
 
 def main():
     # global escopo
