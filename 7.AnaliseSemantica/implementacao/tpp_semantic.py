@@ -6,14 +6,53 @@ global escopo
 escopo = 'global'
 pd.set_option('display.max_columns', None)
 
+def encontra_expressao_retorno(retorna, lista_retorno):
+    lista_retorno = lista_retorno
+    retorno_dict = {}
+    tipo_retorno = ''
+    indice = ''
+
+    for ret in retorna.children:
+        if ret.label == 'numero':
+            # print("Encontra indice")
+            indice = ret.children[0].children[0].label 
+            # print(indice)
+            tipo_retorno = ret.children[0].label
+
+            if (tipo_retorno == 'NUM_INTEIRO'):
+                tipo_retorno = 'inteiro'
+            
+            elif (tipo_retorno == 'NUM_FLUTUANTE'):
+                tipo_retorno = 'flutuante'
+
+            retorno_dict[indice] = tipo_retorno
+            lista_retorno.append(retorno_dict)
+
+            print("ENCONTRA INDICE RETORNO %s  %s" % (tipo_retorno, indice))
+            return lista_retorno
+
+        elif ret.label == 'ID':
+            print("ENCONTREI UMA VARIAVEL %s" % ret.children[0].label)
+            indice = ret.children[0].label
+            tipo_retorno = 'parametro'
+
+            retorno_dict[indice] = tipo_retorno
+            lista_retorno.append(retorno_dict)
+
+            return lista_retorno
+
+        lista_retorno = encontra_expressao_retorno(ret, lista_retorno)
+    
+    return lista_retorno
 
 def encontra_valores_retorno(retorna, retorno):
     retorno = retorno
 
+
     for ret in retorna.children:
         expressoes = ['expressao_aditiva', 'expressao_multiplicativa', ]
         if (ret.label in expressoes):
-            retorno = encontra_indice_retorno(ret)
+            retorno = encontra_expressao_retorno(ret, retorno)
             print("AQUIIIIIIIIIIIIIIIIIIIIIIII")
             print(retorno)
             return retorno
@@ -44,36 +83,34 @@ def encontra_tipo_nome_parametro(parametro, tipo, nome):
         tipo, nome = encontra_tipo_nome_parametro(param, tipo, nome)
     return tipo, nome
 
-def encontra_indice_retorno(expressao, indice, tipo_retorno):
-    indice = indice
-    tipo_retorno = tipo_retorno
+def encontra_indice_retorno(expressao):
+    indice = ''
+    tipo_retorno = ''
 
     for filhos in expressao.children:
         if filhos.label == 'numero':
             # print("Encontra indice")
             indice = filhos.children[0].children[0].label 
             # print(indice)
-            # tipo_retorno = filhos.children[0].label
-            tipo_retorno.append(filhos.children[0].label)
+            tipo_retorno = filhos.children[0].label
 
             if (tipo_retorno == 'NUM_INTEIRO'):
-                # tipo_retorno = 'inteiro'
-                tipo_retorno.append('inteiro')
+                tipo_retorno = 'inteiro'
+            
+            elif (tipo_retorno == 'NUM_PONTO_FLUTUANTE'):
+                tipo_retorno = 'inteiro'
 
             print("ENCONTRA INDICE RETORNO %s  %s" % (tipo_retorno, indice))
             return tipo_retorno, indice
 
         elif filhos.label == 'ID':
             print("ENCONTREI UMA VARIAVEL %s" % filhos.children[0].label)
-            # indice = filhos.children[0].label
-            # tipo_retorno = 'parametro'
-            indice.append(filhos.children[0].label)
-            tipo_retorno.append('parametro')
-
+            indice = filhos.children[0].label
+            tipo_retorno = 'parametro'
 
             return tipo_retorno, indice
 
-        tipo_retorno,indice = encontra_indice_retorno(filhos, indice, tipo_retorno)
+        tipo_retorno,indice = encontra_indice_retorno(filhos)
     
     return tipo_retorno,indice
 
@@ -95,14 +132,14 @@ def verifica_dimensoes(tree, dimensao, indice_1, indice_2):
                 # print("TEM 2 DIMENSOES")
                 print("LABEL EXPRESSAO %s" % filho.children[0].children[1].label)
                 dimensao = 2
-                _, indice_1 = encontra_indice_retorno(filho.children[0].children[1], [], [])
-                _, indice_2 = encontra_indice_retorno(filho.children[2], [], [])
+                _, indice_1 = encontra_indice_retorno(filho.children[0].children[1])
+                _, indice_2 = encontra_indice_retorno(filho.children[2])
                 return dimensao, indice_1, indice_2
             
             else:
                 # print("TEM 1 DIMENSAO")
                 dimensao = 1
-                _, indice_1 = encontra_indice_retorno(filho.children[1], [], [])
+                _, indice_1 = encontra_indice_retorno(filho.children[1])
                 indice_2 = 0
                 return dimensao, indice_1, indice_2
 
@@ -139,7 +176,7 @@ def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, reto
         elif ('retorna' in filho.label):
 
             retorno_tipo_valor = encontra_valores_retorno(filho, [])
-            print("RETORNOOOOO")
+            print("RETORNOOOOOooo")
             print(retorno_tipo_valor)
 
             linha_retorno = filho.label.split(':')
@@ -147,7 +184,7 @@ def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, reto
             token = filho.children[0].label
             retorno = ''
 
-            tipo_retorno, retorno = encontra_indice_retorno(filho.children[2], [], [])
+            tipo_retorno, retorno = encontra_indice_retorno(filho.children[2])
             return tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno
 
         tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno = encontra_dados_funcao(filho, tipo, nome_funcao, parametros, retorno, tipo_retorno, linha_retorno)
@@ -188,7 +225,7 @@ def encontra_parametros(no_parametro, parametros):
         print("NO EXPRESSAO LABEL %s" % no.label)
 
         if (no.label == 'expressao'):
-            tipo, nome = encontra_indice_retorno(no, [], [])
+            tipo, nome = encontra_indice_retorno(no)
             parametro[nome] = tipo
             print("PARAMETRO DICIONARIO 1")
             print(parametro)
@@ -339,7 +376,7 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             valor_atribuido = {}
             valores = []
 
-            tipo, valor = encontra_indice_retorno(filho.children[2], [], [])
+            tipo, valor = encontra_indice_retorno(filho.children[2])
 
             linha_declaracao = filho.label.split(':')
             linha_declaracao = linha_declaracao[1]
