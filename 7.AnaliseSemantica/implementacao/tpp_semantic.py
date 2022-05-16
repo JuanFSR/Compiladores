@@ -365,8 +365,8 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             linha_declaracao = filho.label.split(':')
             linha_declaracao = linha_declaracao[1]
 
-            # print("PARAMETROS")
-            # print(parametros)
+            print("PARAMETROS")
+            print(parametros)
 
             # Procuro primeiramente se existe uma declaração dessa função
             declaracao_funcao = tabela_simbolos.loc[tabela_simbolos['Lexema'] == nome_funcao]
@@ -469,13 +469,17 @@ def verifica_regras_semanticas(tabela_simbolos):
 
     # pegar só as variáveis
     variaveis = tabela_simbolos.loc[tabela_simbolos['funcao'] == 'N']
-    variaveis = variaveis['Lexema'].unique()
+    # variaveis = variaveis['Lexema'].unique()
+    # print("VARIAVEIS")
+    # print(variaveis)
+
+    print("ITERANDO SOBRE ROWS")
+
+    # variaveis = variaveis.reset_index()
 
     funcoes = tabela_simbolos.loc[tabela_simbolos['funcao'] != 'N']
     funcoes = funcoes['Lexema'].unique()
 
-    # print("VARIAVEIS")
-    # print(variaveis)
 
     # print("FUNÇÕES / CHAMADAS DE FUNÇÕES")
     # print(funcoes)
@@ -488,14 +492,19 @@ def verifica_regras_semanticas(tabela_simbolos):
 
     # Verifica se as variaveis foram inicializadas
 
+    # Itera sobre todas o dataFrame todo, assim é possível verificar o escopo
     # Passa por tudo que foi declarado (somente variáveis)
-    for var in variaveis:
+    for index, row in variaveis.iterrows():
+        print(row['Lexema'])
+        
+    # for var in variaveis:
         # print("VARRR")
         # print(variaveis)
         # Verifica se não é a função principal
         inicializada = False
 
-        df = tabela_simbolos.loc[tabela_simbolos['Lexema'] == var]
+        # df = tabela_simbolos.loc[tabela_simbolos['Lexema'] == var]
+        df = tabela_simbolos.loc[tabela_simbolos['Lexema'] == row['Lexema']]
         # print("Verificando se as variáveis foram inicializadas")
         # print(df)
 
@@ -514,12 +523,30 @@ def verifica_regras_semanticas(tabela_simbolos):
         # E vê se está no retorno
         # MELHOR PASSAR COM O ESCOPO AO PASSAR PELAS VARIÁVEIS
         # DESSE JEITO SE TIVER UMA VARIÁVEL COM O MESMO NOME EM ESCOPOS DIFERENTES NÃO VAI SER CONSIDERADO
-        # retorna_parametros = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == 'retorna') & ]
+        retorna_parametros = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == 'retorna') & (tabela_simbolos['escopo'] == row['escopo'])]
+        retorna_parametros = retorna_parametros['valor']
+        retorna_parametros = retorna_parametros.values
 
 
+
+        # print("ESCOPO VARIÁVEL: %s  VARIÁVEL: %s" % (row['escopo'], row['Lexema']))
+        print("ESCOPO RETORNO: %s" % retorna_parametros)
+        
+        # Caso tenha algum retorno que esteja no mesmo escopo que a declaração da variável
+        if len(retorna_parametros) > 0:
+            # Só verifica se a variável está nos parâmetros do retorno
+            for  retornos_variaveis in retorna_parametros:
+                print("RETORNO VARIÁVEIS", retornos_variaveis)
+                for rt_vs in retornos_variaveis:
+                    for nome_variavel_retorno, tipo_variavel_retorno in rt_vs.items():
+                        print("NOME RETORNA VARIÁVEL %s TIPO VARIÁVEL RETORNA %s" % (nome_variavel_retorno, tipo_variavel_retorno))
+                        
+                        if (row['Lexema'] == nome_variavel_retorno):
+                            inicializada = True
+                            print("VARIÁVEL %s ESTÁ SENDO UTILIZADA NO RETORNO" % row['Lexema'])
 
         if (inicializada == False):
-            print("Aviso: Variável '%s' declarada e não utilizada" % var)
+            print("Aviso: Variável '%s' declarada e não utilizada" % row['Lexema'])
         
 
 
