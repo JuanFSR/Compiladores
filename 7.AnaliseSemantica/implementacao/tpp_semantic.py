@@ -485,8 +485,6 @@ def verifica_regras_semanticas(tabela_simbolos):
 
     # Tirando variáveis do mesmo escopo difente, ficar com a declaração
     for var_rep in variaveis_repetidas_valores:
-        # print("----------------------------------------------------")
-        # print("VARRRRR REPPPPP %s" % (var_rep))
         variaveis_repetidas = variaveis.loc[variaveis['Lexema'] == var_rep]
 
         if len(variaveis_repetidas) > 1:
@@ -501,7 +499,8 @@ def verifica_regras_semanticas(tabela_simbolos):
             for esc in escopos_variaveis:
                 variaveis_repetidas_escopo_igual_index = variaveis_repetidas_linhas.loc[variaveis_repetidas_linhas['escopo'] == esc].index
                 variaveis.drop(variaveis_repetidas_escopo_igual_index[0] , inplace=True)
-        else:
+
+        elif len(variaveis_repetidas) == 0:
             print("Erro: Variável '%s' não declarada" % var_rep)
 
 
@@ -527,7 +526,6 @@ def verifica_regras_semanticas(tabela_simbolos):
     # Itera sobre todas o dataFrame todo, assim é possível verificar o escopo
     # Passa por tudo que foi declarado (somente variáveis)
     for index, row in variaveis.iterrows():
-        print('LEXEMAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', row['Lexema'])
         
         inicializada = False
 
@@ -577,11 +575,9 @@ def verifica_regras_semanticas(tabela_simbolos):
 
         # Depois de pegar o valor é necessário verificar se é uma variável ou uma função
         # Fazer uma função que retorna o tipo do valor atribuído
-        print("VARIÁVEL %s E SEU VALOR ATRIBUÍDO %s LENN %s" % (row['Lexema'], inicializacao_variaveis_valores, len(inicializacao_variaveis_valores)))
 
         if len(inicializacao_variaveis_valores) > 0:
             boolen_tipo_igual, tipo_atribuicao, nome_variavel_inicializacao = verifica_tipo_atribuicao(row, row['Tipo'], row['escopo'], inicializacao_variaveis_valores, variaveis, funcoes, tabela_simbolos)
-            print("BOOLLLLLLLLL", boolen_tipo_igual)
 
             if (boolen_tipo_igual == False):
                 print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (row['Lexema'], row['Tipo'], nome_variavel_inicializacao, tipo_atribuicao))
@@ -629,7 +625,7 @@ def verifica_regras_semanticas(tabela_simbolos):
                         print("Erro: Chamada à função '%s' com número de parâmetros maior que o declarado" % func)
             
 
-def poda_arvore(arvore):
+def retira_no(no_remove):
     pass
 
 
@@ -643,10 +639,8 @@ def main():
     tree = tppparser.main()
     print("Tree")
     print(tree)
-    # data = ['ID', 'TESTE', 'TESTE', 'TESTE', 'TESTE', 'TESTE', 'TESTE', 'TESTE', 'TESTE',]
 
     tabela_simbolos = pd.DataFrame(data=[], columns=['Token', 'Lexema', 'Tipo', 'dim', 'tam_dim1', 'tam_dim2', 'escopo', 'init', 'linha', 'funcao', 'parametros', 'valor'])
-    # tabela_simbolos.loc[len(tabela_simbolos)] = data
     # Montar a tabela de símbolos
     tabela_simbolos = monta_tabela_simbolos(tree, tabela_simbolos)
     verifica_regras_semanticas(tabela_simbolos)
