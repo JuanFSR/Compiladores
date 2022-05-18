@@ -42,7 +42,7 @@ digraph tree {
     "ID";
     "z";
     "declaracao";
-    "declaracao_funcao:0";
+    "declaracao_funcao:6";
     "tipo";
     "INTEIRO";
     "inteiro";
@@ -261,7 +261,7 @@ digraph tree {
     "FIM";
     "fim";
     "declaracao";
-    "declaracao_funcao:0";
+    "declaracao_funcao:26";
     "tipo";
     "INTEIRO";
     "inteiro";
@@ -360,7 +360,7 @@ digraph tree {
     "ID";
     "b";
     "declaracao";
-    "declaracao_funcao:0";
+    "declaracao_funcao:36";
     "tipo";
     "INTEIRO";
     "inteiro";
@@ -680,9 +680,9 @@ digraph tree {
     "virgula" -> ",";
     "var" -> "ID";
     "ID" -> "z";
-    "declaracao" -> "declaracao_funcao:0";
-    "declaracao_funcao:0" -> "tipo";
-    "declaracao_funcao:0" -> "cabecalho";
+    "declaracao" -> "declaracao_funcao:6";
+    "declaracao_funcao:6" -> "tipo";
+    "declaracao_funcao:6" -> "cabecalho";
     "tipo" -> "INTEIRO";
     "INTEIRO" -> "inteiro";
     "cabecalho" -> "ID";
@@ -898,9 +898,9 @@ digraph tree {
     "ID" -> "m";
     "FECHA_PARENTESE" -> ")";
     "FIM" -> "fim";
-    "declaracao" -> "declaracao_funcao:0";
-    "declaracao_funcao:0" -> "tipo";
-    "declaracao_funcao:0" -> "cabecalho";
+    "declaracao" -> "declaracao_funcao:26";
+    "declaracao_funcao:26" -> "tipo";
+    "declaracao_funcao:26" -> "cabecalho";
     "tipo" -> "INTEIRO";
     "INTEIRO" -> "inteiro";
     "cabecalho" -> "ID";
@@ -994,9 +994,9 @@ digraph tree {
     "lista_variaveis" -> "var";
     "var" -> "ID";
     "ID" -> "b";
-    "declaracao" -> "declaracao_funcao:0";
-    "declaracao_funcao:0" -> "tipo";
-    "declaracao_funcao:0" -> "cabecalho";
+    "declaracao" -> "declaracao_funcao:36";
+    "declaracao_funcao:36" -> "tipo";
+    "declaracao_funcao:36" -> "cabecalho";
     "tipo" -> "INTEIRO";
     "INTEIRO" -> "inteiro";
     "cabecalho" -> "ID";

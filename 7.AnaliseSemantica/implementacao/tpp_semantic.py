@@ -5,6 +5,7 @@ import tppparser
 import pandas as pd
 import sys
 
+from sys import argv
 from anytree.exporter import UniqueDotExporter
 
 
@@ -625,20 +626,93 @@ def verifica_regras_semanticas(tabela_simbolos):
                         print("Erro: Chamada à função '%s' com número de parâmetros maior que o declarado" % func)
             
 
-def retira_no(no_remove):
-    pass
 
+def retira_no(no_remove):
+    auxilixar_arvore = []
+    pai = no_remove.parent
+
+    if no_remove.name in remover_nos:
+        for filho in range(len(pai.children)):
+            # Verifico se está na lista de nós que quero remover
+            if pai.children[filho].name ==  no_remove.name:
+                auxilixar_arvore += no_remove.children
+            
+            # Caso nao esteja eu adiciono na lista do auxiliar
+            else:
+                auxilixar_arvore.append(pai.children[filho])
+        pai.children = auxilixar_arvore
+
+    elif no_remove.name.split(':')[0] in remover_nos:
+        for filho in range(len(pai.children)):
+            # Verifico se está na lista de nós que quero remover
+            if pai.children[filho].name ==  no_remove.name:
+                auxilixar_arvore += no_remove.children
+            
+            # Caso nao esteja eu adiciono na lista do auxiliar
+            else:
+                auxilixar_arvore.append(pai.children[filho])
+
+        pai.children = auxilixar_arvore
+
+    if no_remove.name in verificar_nos:
+        if len(no_remove.children) == 0:
+            for filho in range(len(pai.children)):
+            # Verifico se está na lista de nós que quero remover
+                if pai.children[filho].name ==  no_remove.name:
+                    auxilixar_arvore += no_remove.children
+                    print("AUXILIAR", no_remove.name)
+
+                elif pai.children[filho].name.split(':')[0] == no_remove.name:
+                    print("AUXILIAR 2", no_remove.name)
+                    auxilixar_arvore += no_remove.children
+
+
+                # Caso nao esteja eu adiciono na lista do auxiliar
+                else:
+                    auxilixar_arvore.append(pai.children[filho])
+            
+            pai.children = auxilixar_arvore
+    
+    elif no_remove.name.split(':')[0] in verificar_nos:
+        if len(no_remove.children) == 0:
+            for filho in range(len(pai.children)):
+            # Verifico se está na lista de nós que quero remover
+                if pai.children[filho].name ==  no_remove.name:
+                    auxilixar_arvore += no_remove.children
+                    print("AUXILIAR", no_remove.name)
+
+                elif pai.children[filho].name.split(':')[0] == no_remove.name:
+                    print("AUXILIAR 2", no_remove.name)
+                    auxilixar_arvore += no_remove.children
+
+
+                # Caso nao esteja eu adiciono na lista do auxiliar
+                else:
+                    auxilixar_arvore.append(pai.children[filho])
+            
+            pai.children = auxilixar_arvore
+        
+
+
+
+
+
+def poda_arvore(arvore_abstrata):
+    for no in arvore_abstrata.children:
+        
+        poda_arvore(no)
+    retira_no(arvore_abstrata)
+    
 
 def main():
     # global escopo
     global remover_nos
+    global verificar_nos
     global deixa_proximos_nos
 
     escopo = 'global'
 
     tree = tppparser.main()
-    print("Tree")
-    print(tree)
 
     tabela_simbolos = pd.DataFrame(data=[], columns=['Token', 'Lexema', 'Tipo', 'dim', 'tam_dim1', 'tam_dim2', 'escopo', 'init', 'linha', 'funcao', 'parametros', 'valor'])
     # Montar a tabela de símbolos
@@ -647,6 +721,31 @@ def main():
     print()
     print("TABELA DE SÍMBOLOS")
     print(tabela_simbolos)
+
+    # Nós que tem o valor de linhas nos nomes
+    verificar_nos = ['retorna', 'corpo', 'leia', 'escreva', 'se', 'repita', 'até']
+
+    # Nós que serão retirados na poda
+    remover_nos = ['ID', 'var', 'lista_variaveis', 'dois_pontos', 'tipo',
+                    'INTEIRO',  'NUM_INTEIRO','lista_declaracoes', 'declaracao', 'indice',
+                    'numero', 'fator','abre_colchete', 'fecha_colchete', 'menos', 'menor_igual',
+                    'maior_igual','expressao', 'expressao_logica',  'ABRE_PARENTESE', 'FECHA_PARENTESE', 
+                    'MAIS', 'chamada_funcao', 'MENOS','expressao_simples', 'expressao_aditiva', 'expressao_multiplicativa',
+                    'expressao_unaria', 'inicializacao_variaveis', 'ATRIBUICAO','NUM_NOTACAO_CIENTIFICA', 'LEIA', 
+                    'abre_parentese', 'fecha_parentese', 'atribuicao', 'fator', 'cabecalho', 'FIM','operador_soma',
+                    'mais', 'chamada_funcao', 'lista_argumentos', 'VIRGULA','virgula', 'lista_parametros', 'vazio',
+                    '(', ')', ':', ',', 'FLUTUANTE', 'NUM_PONTO_FLUTUANTE', 'RETORNA', 'ESCREVA', 'SE', 'ENTAO', 'SENAO',
+                    'maior','menor', 'REPITA', 'igual', 'menos', 'menor_igual', 'maior_igual', 'operador_logico',
+                    'operador_multiplicacao', 'vezes','id', 'declaracao_variaveis', 'atribuicao', 'operador_relacional', 'MAIOR']
+
+    # Verificar retorno (nenhum filho)
+    poda_arvore(tree)
+    print()
+    print()
+
+    # Gera imagem da árvore podada
+    UniqueDotExporter(tree).to_picture(f"{sys.argv[1]}.prunned.unique.ast.png")
+    print(f"Grafo da Árvore Sintática Abstrata foi gerada. \nArquivo de Saída: {sys.argv[1]}.prunned.unique.ast.png")
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ digraph tree {
     "ID";
     "a";
     "declaracao";
-    "declaracao_funcao:0";
+    "declaracao_funcao:6";
     "tipo";
     "INTEIRO";
     "inteiro";
@@ -57,9 +57,9 @@ digraph tree {
     "lista_variaveis" -> "var";
     "var" -> "ID";
     "ID" -> "a";
-    "declaracao" -> "declaracao_funcao:0";
-    "declaracao_funcao:0" -> "tipo";
-    "declaracao_funcao:0" -> "cabecalho";
+    "declaracao" -> "declaracao_funcao:6";
+    "declaracao_funcao:6" -> "tipo";
+    "declaracao_funcao:6" -> "cabecalho";
     "tipo" -> "INTEIRO";
     "INTEIRO" -> "inteiro";
     "cabecalho" -> "ID";

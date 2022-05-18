@@ -2,6 +2,9 @@ from sys import argv, exit
 
 import logging
 
+from yaml import parse
+global cabecalho
+
 logging.basicConfig(
      level = logging.DEBUG,
      filename = "log-parser.txt",
@@ -237,7 +240,18 @@ def p_declaracao_funcao(p):
     """declaracao_funcao : tipo cabecalho 
                         | cabecalho 
     """
-    line = p.lineno(2)
+    global cabecalho
+    print("P", p[1].name)
+    
+    try:
+        line = p.lineno(2)   
+
+        if line == 0:
+            line = cabecalho
+    except:
+        line = cabecalho
+    
+
     name = 'declaracao_funcao:' + str(line)
     print("DECLARACAO %s" % name)
     pai = MyNode(name=name, type='DECLARACAO_FUNCAO')
@@ -250,6 +264,11 @@ def p_declaracao_funcao(p):
 
 def p_cabecalho(p):
     """cabecalho : ID ABRE_PARENTESE lista_parametros FECHA_PARENTESE corpo FIM"""
+
+    global cabecalho
+    cabecalho = p.lineno(2)
+    
+    print("CABECALHO", p.lineno(2))
 
     pai = MyNode(name='cabecalho', type='CABECALHO')
     p[0] = pai
@@ -932,6 +951,8 @@ def main():
         UniqueDotExporter(root).to_dotfile(argv[1] + ".unique.ast.dot")
         print(RenderTree(root, style=AsciiStyle()).by_attr())
         print("Gráfico foi gerado.\nArquivo de saída: " + argv[1] + ".ast.png")
+        print()
+        print()
 
         DotExporter(root, graph="graph",
                     nodenamefunc=MyNode.nodenamefunc,
