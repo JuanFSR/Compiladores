@@ -37,7 +37,7 @@ def encontra_expressao_retorno(retorna, lista_retorno):
             return lista_retorno
 
         elif ret.label == 'ID':
-            print("ENCONTREI UMA VARIAVEL %s" % ret.children[0].label)
+            # print("ENCONTREI UMA VARIAVEL %s" % ret.children[0].label)
             indice = ret.children[0].label
             tipo_retorno = 'parametro'
 
@@ -372,6 +372,9 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
         elif ('atribuicao' in filho.label):
             valor_atribuido = {}
             valores = []
+            dimensoes = 0
+            tam_dimensao_1 = 0
+            tam_dimensao_2 = 0
 
             tipo, valor = encontra_indice_retorno(filho.children[2])
             variavel_atribuicao_nome = filho.children[0].children[0].children[0].label
@@ -379,10 +382,11 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             linha_declaracao = filho.label.split(':')
             linha_declaracao = linha_declaracao[1]
 
+
             # Caso o tipo seja um ID, significa que está recebendo uma outra variável
             # É necessário procurar se essa variável já foi declarada
-            if tipo == 'parametro':
 
+            if tipo == 'parametro':
 
                 variavel_declarada = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == valor) & (tabela_simbolos['init'] == 'N')]
 
@@ -404,12 +408,30 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             tipo_variavel_recebendo = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_atribuicao_nome) & (tabela_simbolos['init'] == 'N')]
             tipo_variavel_recebendo = tipo_variavel_recebendo['Tipo'].values
             
+            dimensoes = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_atribuicao_nome) & (tabela_simbolos['init'] == 'N')]
+            tam_dimensao_1 = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_atribuicao_nome) & (tabela_simbolos['init'] == 'N')]
+            tam_dimensao_2 = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_atribuicao_nome) & (tabela_simbolos['init'] == 'N')]
+
+            dimensoes = dimensoes['dim'].values
+            dimensoes = dimensoes[0]
+
+            tam_dimensao_1 = tam_dimensao_1['tam_dim1'].values
+            tam_dimensao_1 = tam_dimensao_1[0]
+
+            tam_dimensao_2 = tam_dimensao_2['tam_dim2'].values
+            tam_dimensao_2 = tam_dimensao_2[0]
+
+            # Verifica se tem mais de uma dimensão
+            # Caso tenha, tenho que pegar a posição que ele acessa
+            if int(dimensoes) > 0:
+                dimensoes, tam_dimensao_1, tam_dimensao_2 = verifica_dimensoes(filho, 0, 0, 0)
+
             if len(tipo_variavel_recebendo) > 0:
                 tipo_variavel_recebendo = tipo_variavel_recebendo[0]
 
 
             # Necessário verificar se a variável tem uma dimensão ou mais:
-            linha_dataframe = ['ID', variavel_atribuicao_nome, tipo_variavel_recebendo, 0, 0, 0, escopo, 'S', linha_declaracao, 'N', [], valores]
+            linha_dataframe = ['ID', variavel_atribuicao_nome, tipo_variavel_recebendo, dimensoes, tam_dimensao_1, tam_dimensao_2, escopo, 'S', linha_declaracao, 'N', [], valores]
             tabela_simbolos.loc[len(tabela_simbolos)] = linha_dataframe
             
 
@@ -526,8 +548,24 @@ def verifica_regras_semanticas(tabela_simbolos):
 
     # Itera sobre todas o dataFrame todo, assim é possível verificar o escopo
     # Passa por tudo que foi declarado (somente variáveis)
+    # print("VARIÁVEIS")
+    # print(variaveis)
+
     for index, row in variaveis.iterrows():
+        dimensao_variavel = row['dim']
         
+        if int(dimensao_variavel) > 0:
+            if int(dimensao_variavel) == 1:
+                # Verifica se a dimensão tem um '.'
+                if '.' in str(row['tam_dim1']):
+                    print("Erro: índice de array '%s' não inteiro" % row['Lexema'])
+
+            # Verifica se tem mais de uma dimensão
+            elif int(dimensao_variavel) == 2:
+                # Verifica se a dimensão tem um '.'
+                if '.' in str(row['tam_dim2']):
+                    print("Erro: índice de array '%s' não inteiro" % row['Lexema'])
+
         inicializada = False
 
         df = tabela_simbolos.loc[tabela_simbolos['Lexema'] == row['Lexema']]
@@ -547,9 +585,6 @@ def verifica_regras_semanticas(tabela_simbolos):
         retorna_parametros = retorna_parametros['valor']
         retorna_parametros = retorna_parametros.values
 
-
-
-        
         # Caso tenha algum retorno que esteja no mesmo escopo que a declaração da variável
         if len(retorna_parametros) > 0:
             # Só verifica se a variável está nos parâmetros do retorno
@@ -608,7 +643,7 @@ def verifica_regras_semanticas(tabela_simbolos):
                 
                 # Se há uma declaração
                 if len(declaracao_funcao) < 1:
-                    print("Erro: Chamada a função %s que não foi declarada" % func)
+                    print("Erro: Chamada a função '%s' que não foi declarada" % func)
                 else:
                 # Agora verifico a quantidade de parâmetro
                     quantidade_parametros_chamada = chamada_funcao['parametros']
@@ -620,7 +655,7 @@ def verifica_regras_semanticas(tabela_simbolos):
                     quantidade_parametros_declaracao_funcao = quantidade_parametros_declaracao_funcao[0]
                     
                     if len(quantidade_parametros_chamada) < len(quantidade_parametros_declaracao_funcao):
-                        print("Erro: Chamada à função %s com número de parâmetros menor que o declarado" % func)
+                        print("Erro: Chamada à função '%s' com número de parâmetros menor que o declarado" % func)
                     
                     elif len(quantidade_parametros_chamada) > len(quantidade_parametros_declaracao_funcao):
                         print("Erro: Chamada à função '%s' com número de parâmetros maior que o declarado" % func)
@@ -660,10 +695,8 @@ def retira_no(no_remove):
             # Verifico se está na lista de nós que quero remover
                 if pai.children[filho].name ==  no_remove.name:
                     auxilixar_arvore += no_remove.children
-                    print("AUXILIAR", no_remove.name)
 
                 elif pai.children[filho].name.split(':')[0] == no_remove.name:
-                    print("AUXILIAR 2", no_remove.name)
                     auxilixar_arvore += no_remove.children
 
 
@@ -679,10 +712,8 @@ def retira_no(no_remove):
             # Verifico se está na lista de nós que quero remover
                 if pai.children[filho].name ==  no_remove.name:
                     auxilixar_arvore += no_remove.children
-                    print("AUXILIAR", no_remove.name)
 
                 elif pai.children[filho].name.split(':')[0] == no_remove.name:
-                    print("AUXILIAR 2", no_remove.name)
                     auxilixar_arvore += no_remove.children
 
 

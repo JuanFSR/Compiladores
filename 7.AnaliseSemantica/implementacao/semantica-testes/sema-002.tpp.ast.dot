@@ -53,7 +53,7 @@ digraph tree {
     "fecha_colchete";
     "]";
     "declaracao";
-    "declaracao_funcao:0";
+    "declaracao_funcao:10";
     "tipo";
     "INTEIRO";
     "inteiro";
@@ -157,9 +157,9 @@ digraph tree {
     "numero" -> "NUM_PONTO_FLUTUANTE";
     "NUM_PONTO_FLUTUANTE" -> "1.2";
     "fecha_colchete" -> "]";
-    "declaracao" -> "declaracao_funcao:0";
-    "declaracao_funcao:0" -> "tipo";
-    "declaracao_funcao:0" -> "cabecalho";
+    "declaracao" -> "declaracao_funcao:10";
+    "declaracao_funcao:10" -> "tipo";
+    "declaracao_funcao:10" -> "cabecalho";
     "tipo" -> "INTEIRO";
     "INTEIRO" -> "inteiro";
     "cabecalho" -> "ID";
