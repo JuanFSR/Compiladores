@@ -732,7 +732,6 @@ def verifica_regras_semanticas(tabela_simbolos):
             # Verificar se a função principal chama ela mesma
             chamada_funcao_principal = tabela_simbolos.loc[tabela_simbolos['funcao'] == 'chamada_funcao']
             verifica_escopo = chamada_funcao_principal['escopo'].values[0]
-            # print("ESCOPOOO", verifica_escopo)
 
             if len(chamada_funcao_principal) > 0:
                 if verifica_escopo == 'principal':
@@ -744,9 +743,6 @@ def verifica_regras_semanticas(tabela_simbolos):
             chamada_funcao = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == func) & (tabela_simbolos['funcao'] == 'chamada_funcao')]
             declaracao_funcao = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == func) & (tabela_simbolos['funcao'] == 'S')]
             
-            # tipo_funcao = declaracao_funcao['Tipo'].values
-            # tipo_funcao = tipo_funcao[0]
-
             # Verifica se o tipo da função é do mesmo tipo do retorno
             if (func == 'retorna'):
                 escopo_retorno = declaracao_funcao['escopo'].values
@@ -758,17 +754,14 @@ def verifica_regras_semanticas(tabela_simbolos):
                 for var in variavel_retornada:
                     for n, t in var.items():
                         variavel_retornada = n
-                        # print("VALOR DO RETORNO", variavel_retornada)
 
                 # Atribuo o valor do tipo da funçao
                 tipo_retorno_funcao = declaracao_funcao['Tipo'].values
                 tipo_retorno_funcao = tipo_retorno_funcao[0]
 
                 if variavel_retornada in tabela_simbolos['Lexema'].unique():
-                    # print("ENTREI AQUIIIII")
                     # Ve se ela foi declarada nesse escopoo
                     declaracao_variavel = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_retornada) & (tabela_simbolos['escopo'] == escopo_retorno) & (tabela_simbolos['init'] == 'N')]
-                    # print(declaracao_variavel)
 
                     if len(declaracao_variavel) == 0:
                         
