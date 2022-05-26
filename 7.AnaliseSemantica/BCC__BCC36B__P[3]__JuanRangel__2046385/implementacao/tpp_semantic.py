@@ -99,8 +99,6 @@ def atribuicao_expressao(expressao, valores):
     valor_dic = {}
 
     for filhos in expressao.children:
-        # print("FILHOS")
-        # print(filhos.label)
         if filhos.label == 'numero':
             indice = filhos.children[0].children[0].label 
             tipo_retorno = filhos.children[0].label
@@ -113,9 +111,6 @@ def atribuicao_expressao(expressao, valores):
 
             valor_dic[indice] = tipo_retorno
             valores.append(valor_dic)
-            # print("VALORES")
-            # print(valores)
-            # return tipo_retorno, indice
 
         elif filhos.label == 'ID':
             indice = filhos.children[0].label
@@ -123,15 +118,9 @@ def atribuicao_expressao(expressao, valores):
 
             valor_dic[indice] = tipo_retorno
             valores.append(valor_dic)
-            # print("VALORES")
-            # print(valores)
-
-            # return tipo_retorno, indice
 
         valores = atribuicao_expressao(filhos, valores)
     
-    # print("VALORES RETORNO")
-    # print(valores)
     return valores
 
 def encontra_indice_retorno(expressao):
@@ -139,8 +128,6 @@ def encontra_indice_retorno(expressao):
     tipo_retorno = ''
 
     for filhos in expressao.children:
-        # print("FILHOS")
-        # print(filhos.label)
         if filhos.label == 'numero':
             indice = filhos.children[0].children[0].label 
             tipo_retorno = filhos.children[0].label
@@ -182,7 +169,6 @@ def encontra_atribuicao_valor(expressao, valores):
 
             v[indice] = tipo_retorno
             valores.append(v)
-            # return tipo_retorno, indice
 
         elif filhos.label == 'ID':
             indice = filhos.children[0].label
@@ -190,7 +176,6 @@ def encontra_atribuicao_valor(expressao, valores):
 
             v[indice] = tipo_retorno
             valores.append(v)
-            # return tipo_retorno, indice
 
         tipo_retorno,indice = encontra_indice_retorno(filhos)
     
@@ -241,7 +226,6 @@ def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, reto
             if (filho.children[0].label == 'vazio'):
                 parametros = 'vazio'
             else:
-                # print("Tem mais de um parâmetro")
                 pass
             
         elif (filho.label == 'cabecalho'):
@@ -256,7 +240,6 @@ def encontra_dados_funcao(declaracao_funcao, tipo, nome_funcao, parametros, reto
             token = filho.children[0].label
             retorno = ''
 
-            # tipo_retorno, retorno_tipo_valor = encontra_indice_retorno(filho.children[2])
             tipo_retorno = 'vazio'
 
 
@@ -293,8 +276,6 @@ def encontra_parametros(no_parametro, parametros):
 
 
     for no in no_parametro.children:
-        # print("NO EXPRESSAO LABEL %s" % no.label)
-
         if (no.label == 'expressao'):
             tipo, nome = encontra_indice_retorno(no)
             parametro[nome] = tipo
@@ -312,7 +293,6 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
     dimensao = 0
 
     for filho in tree.children:
-        # print(filho.label)
         if ('declaracao_variaveis' in filho.label):
             # Caso ele não seja um vetor ou uma matriz
             dimensao, dimensao_1, dimensao_2 = verifica_dimensoes(filho, 0, 0, 0)
@@ -339,7 +319,6 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             tipos = []
 
             # Encontrando os parametros
-            # VERIFICAR SE ELES TEM DIMENSAO IGUAL A 1 OU MAIOR
             parametros = encontra_parametro_funcao(filho, parametros)
 
             # Não se esquecer de verificar também os parâmetros da função
@@ -404,9 +383,6 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             
             # Verifico se já existe uma linha retorna na tabela para essa função (ou seja, com esse escopo)
             linha_retorno = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == 'retorna') & (tabela_simbolos['escopo'] == escopo)]
-            # print("LINHA DE RETORNO")
-            # print(escopo)
-            # print(linha_retorno)
 
             # Pega a linha do dataframe
             linha_retorno_index = tabela_simbolos.index[(tabela_simbolos['Lexema'] == 'retorna') & (tabela_simbolos['escopo'] == escopo)].tolist()
@@ -415,9 +391,6 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             # Pego os retornos
             retorno_linha = linha_retorno['valor'].values.tolist()
             retorno = retorno_linha[0]
-            
-            # print("RETORNOS")
-            # print(len(retorno))
 
 
             if len(linha_retorno) > 0:
@@ -427,15 +400,10 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
 
                 for ret in retorno:
                     for nome_retorno, tipo_retorno in ret.items():
-                        # print("NOME RETORNO")
-                        # print(nome_retorno)
                         # procura na tabela de símbolos as variáveis
                         tipo_retorno = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_retorno) & (tabela_simbolos['escopo'] == escopo)]
                         
                         tipo_variaveis_retorno = tipo_retorno['Tipo'].values
-
-                        # print("TIPO VARIAVEIS RETORNO")
-                        # print(tipo_variaveis_retorno)
 
                         if len(tipo_variaveis_retorno) > 0:
                             tipo_variaveis_retorno = tipo_variaveis_retorno[0]
@@ -448,23 +416,10 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
 
                         muda_tipo_retorno = {}
                         muda_tipo_retorno[nome_retorno] = tipo_variaveis_retorno
-                        # print("MUDA TIPO RETORNO")
-                        # print(muda_tipo_retorno)
                         muda_tipo_retorno_lista.append(muda_tipo_retorno)
 
                         tipos.append(tipo_variaveis_retorno)
                         pos += 1
-
-                        # print("AHDFHAOISFHOASD")
-                        # print(linha_retorno['Tipo'].values[0])
-                        # if linha_retorno['Tipo'].values[0] != tipo_variaveis_retorno:
-                        #     print("Aviso: Coerção implícita do valor retornado por '%s'" % linha_retorno['escopo'].values[0])
-
-                # if len(variavel_nao_declarada) > 0:
-                #     print("VARIAVEIS NÃO DECLARADA")
-                #     print(variavel_nao_declarada)
-                #     for n_dec in variavel_nao_declarada:
-                #         print("Erro: Variável '%s' não declarada" % n_dec)
 
                 if len(tipos) > 0:
                     if ('flutuante' in tipos):
@@ -532,10 +487,7 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             tam_dimensao_1 = 0
             tam_dimensao_2 = 0
 
-            # tipo, valor = encontra_indice_retorno(filho.children[2])
             tipo_valor = atribuicao_expressao(filho.children[2], [])
-            # print("VALOR ATRIBUICAO")
-            # print(tipo_valor)
 
             variavel_atribuicao_nome = filho.children[0].children[0].children[0].label
 
@@ -547,14 +499,10 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
             # É necessário procurar se essa variável já foi declarada
             for i in tipo_valor:
                 for valor, tipo in i.items():
-                    # print("VALOR")
-                    # print(valor, tipo)
 
                     if tipo == 'parametro':
 
                         variavel_declarada = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == valor) & (tabela_simbolos['init'] == 'N')]
-                        # print("VARIAVEL DECLARADA")
-                        # print(variavel_declarada)
 
                         if len(variavel_declarada) > 0:
                             tipo = variavel_declarada['Tipo'].values
@@ -582,8 +530,6 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
                         
                         tipo_variavel_recebendo = tipo_variavel_recebendo['Tipo'].values
                     
-                    # print("TIPO VARIAVEL RECEBENDO")
-                    # print(tipo_variavel_recebendo)
                     if len(tipo_variavel_recebendo) > 0:
                         if len(tipo_variavel_recebendo) == 1:
                             tipo_variavel_recebendo = tipo_variavel_recebendo
@@ -654,59 +600,30 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
     tipo_variavel_novo = ''
     tipos_distintos = []
 
-    # print("VARIAVEL TIPO VARIAVEL", variavel_atual, tipo_variavel)
     # Nome da variável que está recebendo um valor
     nome_variavel = variavel_atual['Lexema']
-    # print("----------------------------------")
-    # print(inicializacao_variaveis)
-    # print("AQUIII")
     for ini_variaveis in inicializacao_variaveis:
         for ini_var in ini_variaveis:
             for nome_variavel_inicializacao, tipo_variavel_inicializacao in ini_var.items():
-                # print("NOME e TIPO")
-                # print(nome_variavel, tipo_variavel_inicializacao)
                 
                 status = True
                 nome_inicializacao = nome_variavel_inicializacao
-                # print("----------------------NOME INICIALIZAÇÃO--------------------")
-                # print(nome_inicializacao)
-                # print("------------------------------------------")
-                # print("----------------------ESCOPO--------------------")
-                # print(escopo_variavel)
-                # print("------------------------------------------")
                 # Pegar a declaração da variável que está recebendo um valor no escopo
                 # Caso não encontre, procurar no escopo global
                 declaracao_variavel = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_variavel) & (tabela_simbolos['escopo'] == escopo_variavel) & (tabela_simbolos['init'] == 'N')]
 
-                # print("ENTROU AQUI")
-                # print(declaracao_variavel)
                 if len(declaracao_variavel) == 0:
                     declaracao_variavel_global = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_variavel) & (tabela_simbolos['escopo'] == 'global') & (tabela_simbolos['init'] == 'N')]
-                    # print("DECLARACAO GLOBAL")
-                    # print(declaracao_variavel_global)
                     tipo_variavel_novo = declaracao_variavel_global['Tipo'].values[0]
-                    # print("TIPO VARIAVEL", tipo_variavel_novo)
-                    # print("----------------------GLOBAL TIPO VARIAVEL--------------------")
-                    # print(declaracao_variavel_global)
-                    # print("------------------------------------------")
                 else:
                     tipo_variavel_novo = declaracao_variavel['Tipo'].values[0]
 
                 
                 # Verificar se ela pertence ás funções ou ás variáveis
-                # print("----------------------NOME VARIAVEL INICIALIZAÇÃO--------------------")
-                # print(nome_variavel, nome_variavel_inicializacao, escopo_variavel)
-                # print("------------------------------------------")
                 if nome_variavel_inicializacao in funcoes:
                     tipo_atribuicao = tabela_simbolos.loc[tabela_simbolos['Lexema'] == nome_variavel_inicializacao]
                     tipo_atribuicao = tipo_atribuicao['Tipo'].values
                     tipo_atribuicao = tipo_atribuicao[0]
-
-                    # tipo_variavel_novo = tabela_simbolos[(tabela_simbolos['Lexema'] == nome_variavel) & (tabela_simbolos['escopo'] == escopo_variavel)]
-                    # tipo_variavel_novo = tipo_variavel_novo['Tipo'].values[0]
-                    # print("TIPO E TIPO ATRIBUIÇÃO")
-                    # print(tipo_variavel_novo)
-                    # print( tipo_atribuicao)
 
                     if tipo_variavel_novo == tipo_atribuicao:
                         status = True
@@ -716,11 +633,7 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
                     
                     if status == False:
                         aviso_string = "Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao)
-                        # print("AVISO STRING")
-                        # print(aviso_string)
                         if aviso_string not in avisos:
-                            # print("AVISOS")
-                            # print(avisos)
                             avisos.append(aviso_string)
                             print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao))
 
@@ -729,20 +642,13 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
 
                 elif nome_variavel_inicializacao in variaveis['Lexema'].values:
                     tipo_atribuicao = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_variavel_inicializacao) & (tabela_simbolos['escopo'] == escopo_variavel) & (tabela_simbolos['init'] == 'N')]
-                    # print("----------------------PERTENCE A VARIAVEIS--------------------")
-                    # print(tipo_atribuicao)
                     
                     if len(tipo_atribuicao) == 0:
                         tipo_atribuicao = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_variavel_inicializacao) & (tabela_simbolos['escopo'] == 'global') & (tabela_simbolos['init'] == 'N')]
 
-                    # print("IDENTIFIQUEI QUE RECEBE UM NUMERO", tipo_atribuicao)
                     tipo_atribuicao = tipo_atribuicao['Tipo'].values
                     tipo_atribuicao = tipo_atribuicao[0]
                     
-                    # print("----------------------ESCOPO GLOBAL--------------------")
-                    # print(tipo_atribuicao)
-                    # print("------------------------------------------")
-                    # print("TIPO VALOR", tipo_variavel, tipo_atribuicao)
                     if tipo_variavel_novo == tipo_atribuicao:
                         status = True
                     else:
@@ -752,10 +658,8 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
                         aviso_variavel_string = "Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao)
                         if aviso_variavel_string not in avisos:
                             avisos.append(aviso_variavel_string)
-                        # print("IDENTIFIQUEI QUE RECEBE UM NUMERO", tipo_atribuicao)
                             print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao))
 
-                    # return status, tipo_variavel_inicializacao,tipo_variavel_novo, nome_inicializacao
 
                     
                 # Significa que é um digito
@@ -766,14 +670,9 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
                     if len(declaracao_variavel_valor) == 0:
                         declaracao_variavel_global_valor = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_variavel) & (tabela_simbolos['escopo'] == 'global') & (tabela_simbolos['init'] == 'N')]
                         tipo_variavel_novo = declaracao_variavel_global_valor['Tipo'].values[0]
-                        # print("----------------------GLOBAL TIPO VARIAVEL--------------------")
-                        # print(declaracao_variavel_global)
-                        # print("------------------------------------------")
                     else:
                         tipo_variavel_novo = declaracao_variavel['Tipo'].values[0]
 
-                    # print(declaracao_variavel_global_valor)
-                    # print("TIPO VALOR", tipo_variavel_novo, tipo_variavel)
 
                     if '.' in str(nome_variavel_inicializacao):
                         tipo_variavel = 'flutuante'
@@ -795,20 +694,13 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
                             tipo_variavel_novo = 'flutuante'
 
                     if status == False:
-                        # print("ENTROU AQUI")
                         print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao))
 
                 tipo_variavel_inicializacao_retorno = tipo_variavel_inicializacao
     
-    # print("TIPO VARIAVEL INICIALIZAÇÃO RETORNO")
-    # print(tipo_variavel_inicializacao_retorno)
-    # print("TIPO VARIAVEL NOVO")
-    # print(tipo_variavel_novo)
     return status, tipo_variavel_inicializacao_retorno,tipo_variavel_novo, nome_inicializacao
 
 def verifica_regras_semanticas(tabela_simbolos):
-    # variaveis = tabela_simbolos['Lexema'].unique()
-
     # pegar só as variáveis
     variaveis = tabela_simbolos.loc[tabela_simbolos['funcao'] == 'N']
     
@@ -817,7 +709,6 @@ def verifica_regras_semanticas(tabela_simbolos):
 
     i = 0
     
-    # print(variaveis)
     # Valores únicos das variáveis declaradas e inicializadas
     variaveis_repetidas_valores_inicio = variaveis['Lexema'].unique()
     var_verificacao = variaveis
@@ -826,21 +717,14 @@ def verifica_regras_semanticas(tabela_simbolos):
 
         linhas = tabela_simbolos[tabela_simbolos['Lexema'] == var].index.tolist()
         linha = tabela_simbolos[tabela_simbolos['Lexema'] == var]
-        # print("LINHAS")
-        # print(linha)
 
         if len(linhas) > 1:
             linhas = linha[linha['init'] == 'N'].index.tolist()
-            # print("POSICAO LINHAS")
-            # print(linhas)
             var_verificacao.drop(linhas[0])
-        # dropar as declarações
-        # print(variaveis)
-
+        
+    # dropar as declarações
     for index, row in variaveis.iterrows():
         lista_declaracao_variavel = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == row['Lexema']) & (tabela_simbolos['init'] == 'N') & (tabela_simbolos['escopo'] == row['escopo'])]
-            # print("AHHHHHHHHHHH")
-            # print(lista_declaracao_variavel)
 
         if len(lista_declaracao_variavel) > 1:
             string_variavel_declarada = "Aviso: Variável '%s' já declarada anteriormente" % row['Lexema']
@@ -854,29 +738,14 @@ def verifica_regras_semanticas(tabela_simbolos):
     for e in escopo_variaveis_verificacao:
         for var in variaveis_repetidas_valores_inicio:
             mesmo_escopo = var_verificacao[(var_verificacao['escopo'] == e) & (var_verificacao['Lexema'] == var)]
-            # print("MESMO ESCOPO")
-            # print(mesmo_escopo)
 
             if len(mesmo_escopo) > 1:
                 linha_mesmo_escopo = mesmo_escopo.index.tolist()
-                # print("LINHA ESCOPO", linha_mesmo_escopo[0])
                 var_verificacao.drop(linha_mesmo_escopo[0])
 
-    # print("VARIÁVEISsssssssssssssssssssssssssssssssssssssssssssssssssssssssssss 0")
-    # print(var_verificacao)
 
     for linha in var_verificacao.index:   
         inicializacao_variaveis = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variaveis['Lexema'][linha]) & (tabela_simbolos['escopo'] == variaveis['escopo'][linha]) & (tabela_simbolos['init'] == 'S')]
-        # print("------------------------------")
-        # print("------------------------------")
-        # print("------------------------------")
-        # print("------------------------------")
-        # print("INICIALIZAÇÃO")
-        # print(inicializacao_variaveis)
-        # print("------------------------------")
-        # print("------------------------------")
-        # print("------------------------------")
-        # print("------------------------------")
         inicializacao_variaveis = inicializacao_variaveis['valor'].values
 
         inicializacao_variaveis_valores = []
@@ -886,39 +755,14 @@ def verifica_regras_semanticas(tabela_simbolos):
 
         # Depois de pegar o valor é necessário verificar se é uma variável ou uma função
         # Fazer uma função que retorna o tipo do valor atribuído
-        # print("IIIIIIIIIIIIIIIIIIIIIIII", i)
         if len(inicializacao_variaveis_valores) > 0:
-            # print("ahoashfiahsdfas")
-            # print(variaveis.iloc[i])
             boolen_tipo_igual, tipo_variavel_atribuida, tipo_atribuicao, nome_variavel_inicializacao = verifica_tipo_atribuicao(variaveis.iloc[i], variaveis['Tipo'][linha], variaveis['escopo'][linha], inicializacao_variaveis_valores, variaveis, funcoes, tabela_simbolos)
-            # print("NOME VARIAVEL INICIALIZAÇÃO")
-            # print(nome_variavel_inicializacao)
-
-            # if (boolen_tipo_igual == False):
-            #     # print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (variaveis['Lexema'][linha], tipo_atribuicao, nome_variavel_inicializacao, tipo_variavel_atribuida))
-            #     print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (variaveis.iloc[i]['Lexema'], tipo_atribuicao, nome_variavel_inicializacao, tipo_variavel_atribuida))
 
         i += 1
 
     # # Valores únicos das variáveis declaradas e inicializadas
     variaveis_repetidas_valores = variaveis['Lexema'].unique()
 
-    # Tirando variáveis do mesmo escopo difente, ficar com a declaração
-    # print("VARIAVEIS REPETIDAS")
-    # print(variaveis_repetidas_valores)
-
-    
-    # print("VARIÁVEISsssssssssssssssssssssssssssssssssssssssssssssssssssssssssss 0")
-    # print(variaveis)
-    # for index, row in variaveis.iterrows():
-    #     lista_declaracao_variavel = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == row['Lexema']) & (tabela_simbolos['init'] == 'N') & (tabela_simbolos['escopo'] == row['escopo'])]
-    #         # print("AHHHHHHHHHHH")
-    #         # print(lista_declaracao_variavel)
-
-    #     if len(lista_declaracao_variavel) > 1:
-    #         print("Aviso: Variável '%s' já declarada anteriormente" % row['Lexema'])
-
-    # AQUIIIIIIIIIIIIIIIIIIIII
     for var_rep in variaveis_repetidas_valores:
         variaveis_repetidas = variaveis.loc[variaveis['Lexema'] == var_rep]
 
@@ -938,14 +782,6 @@ def verifica_regras_semanticas(tabela_simbolos):
 
         elif len(variaveis_repetidas) == 0:
             print("Erro: Variável '%s' não declarada" % var_rep)
-    # ATÉ AQUIII
-
-    # DESCOMENTAR
-    # funcoes = tabela_simbolos.loc[tabela_simbolos['funcao'] != 'N']
-    # funcoes = funcoes['Lexema'].unique()
-
-    # print("VARIÁVEIS 1")
-    # print(variaveis)
 
     # retirar os repetidos novamente se houver
     repetidos_variaveis_atribuicao = variaveis['Lexema'].unique()
@@ -956,18 +792,9 @@ def verifica_regras_semanticas(tabela_simbolos):
         if len(tabela_variaveis_repetida_index) > 1:
             variaveis.drop(tabela_variaveis_repetida_index[0])
     
-    # print("VARIAVEIS", variaveis)
-
     # Verifica se existe a função principal
     if ('principal' not in funcoes):
         print('Erro: Função principal não declarada')
-
-    # Verifica se as variaveis foram inicializadas
-
-    # Itera sobre todas o dataFrame todo, assim é possível verificar o escopo
-    # Passa por tudo que foi declarado (somente variáveis)
-    # print("VARIÁVEIS 2")
-    # print(variaveis)
 
 
     for index, row in variaveis.iterrows():
@@ -991,8 +818,6 @@ def verifica_regras_semanticas(tabela_simbolos):
         inicializada = False
 
         df = tabela_simbolos.loc[tabela_simbolos['Lexema'] == row['Lexema']]
-        # print("VARIAVEL DECLARADA E NÃO UTILIZADA")
-        # print(df)
 
         # Caso tenha mais de uma linha com o mesmo valor na coluna Lexema
         if (len(df) > 1):
@@ -1026,37 +851,6 @@ def verifica_regras_semanticas(tabela_simbolos):
                 print("Aviso: Variável '%s' declarada e não utilizada" % row['Lexema'])
         
 
-        # Verificar se o tipo da atribuição de variáveis são o mesmo
-        # Inicialmente pego as variáveis que foram inicializadas que estão no mesmo escopo
-        
-        # DESCOMENTAR
-        # inicializacao_variaveis = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == row['Lexema']) & (tabela_simbolos['escopo'] == row['escopo']) & (tabela_simbolos['init'] == 'S')]
-        # print("LEXEMA %s ESCOPO %s" % (row['Lexema'], row['escopo']))
-        # inicializacao_variaveis = inicializacao_variaveis['valor'].values
-
-        # inicializacao_variaveis_valores = []
-        # if len(inicializacao_variaveis) > 0:
-        #     inicializacao_variaveis_valores = inicializacao_variaveis
-
-
-        # # Depois de pegar o valor é necessário verificar se é uma variável ou uma função
-        # # Fazer uma função que retorna o tipo do valor atribuído
-
-        # if len(inicializacao_variaveis_valores) > 0:
-            
-        #     boolen_tipo_igual, tipo_variavel_atribuida, tipo_atribuicao, nome_variavel_inicializacao = verifica_tipo_atribuicao(row, row['Tipo'], row['escopo'], inicializacao_variaveis_valores, variaveis, funcoes, tabela_simbolos)
-
-        #     print("TIPO ATRIBUIDA %s TIPO ATRIBUICAO %s" % (tipo_variavel_atribuida, tipo_atribuicao))
-        #     if (boolen_tipo_igual == False):
-        #         print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (row['Lexema'], tipo_atribuicao, nome_variavel_inicializacao, tipo_variavel_atribuida))
-
-
-        # Procura na tabela se a variável tem duas linhas onde init == 'N'
-        # lista_declaracao_variavel = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == row['Lexema']) & (tabela_simbolos['init'] == 'N') & (tabela_simbolos['escopo'] == row['escopo'])]
-
-        # if len(lista_declaracao_variavel) > 1:
-        #     print("Aviso: Variável '%s' já declarada anteriormente" % row['Lexema'])
-
     # Verifica todas as funções/chamadas de funções
     for func in funcoes:
         if func == 'principal':
@@ -1068,11 +862,8 @@ def verifica_regras_semanticas(tabela_simbolos):
 
             # Verificar se a função principal chama ela mesma
             chamada_funcao_principal = tabela_simbolos.loc[(tabela_simbolos['funcao'] == 'chamada_funcao') & (tabela_simbolos['Lexema'] == 'principal')]
-            # print("CHAMADA FUNÇÃO")            
-            # print(chamada_funcao_principal)            
 
             if len(chamada_funcao_principal) > 0:
-                # verifica_escopo = chamada_funcao_principal['escopo'].values[0]
                 verifica_escopo = chamada_funcao_principal['escopo'].values[0]
 
                 if verifica_escopo == 'principal':
@@ -1091,7 +882,6 @@ def verifica_regras_semanticas(tabela_simbolos):
 
                 # Pego a variável retornada
                 variavel_retornada = declaracao_funcao['valor'].values[0]
-                # variavel_retornada = variavel_retornada[0]
                 for var in variavel_retornada:
                     for n, t in var.items():
                         variavel_retornada = n
@@ -1101,23 +891,11 @@ def verifica_regras_semanticas(tabela_simbolos):
                 tipo_retorno_funcao = tipo_retorno_funcao[0]
 
                 if variavel_retornada in tabela_simbolos['Lexema'].unique():
-                    # print("VARIAVEL RETORNADA")
-                    # print(variavel_retornada)
-                    # Ve se ela foi declarada nesse escopoo
-                    # print("VERIFICA ESCOPO")
-                    # print(variavel_retornada, escopo_retorno)
-                    # print(tabela_simbolos)
                     declaracao_variavel = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_retornada) & (tabela_simbolos['escopo'] == escopo_retorno) & (tabela_simbolos['init'] == 'N')]
-                    # declaracao_variavel = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_retornada) & (tabela_simbolos['escopo'] == escopo_retorno) & (tabela_simbolos['init'] == 'S')]
-
-                    # print("LINHA ENCONTRADA")
-                    # print(declaracao_variavel)
 
                     if len(declaracao_variavel) == 0:
                         
                         declaracao_variavel_global = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_retornada) & (tabela_simbolos['escopo'] == 'global') & (tabela_simbolos['init'] == 'N')]
-                        # print("DECLARACAO VARIAVEL GLOBAL")
-                        # print(declaracao_variavel_global)
 
                         if len(declaracao_variavel_global) == 0:
                             declaracao_variavel_global = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == variavel_retornada) & (tabela_simbolos['escopo'] == escopo_retorno) & (tabela_simbolos['init'] == 'S')]
@@ -1133,9 +911,6 @@ def verifica_regras_semanticas(tabela_simbolos):
 
                 tipo_funcao = procura_funcao_escopo['Tipo'].values
                 tipo_funcao = tipo_funcao[0]
-
-                # print("TIPO FUNCAO TIPO RETORNO")
-                # print(tipo_funcao, tipo_retorno_funcao)
 
                 if (tipo_funcao != tipo_retorno_funcao):
                     print("Erro: Função '%s' do tipo %s retornando %s" % (nome_funcao, tipo_funcao, tipo_retorno_funcao))
@@ -1231,9 +1006,6 @@ def retira_no(no_remove):
             
             pai.children = auxilixar_arvore
         
-
-
-
 
 
 def poda_arvore(arvore_abstrata):
