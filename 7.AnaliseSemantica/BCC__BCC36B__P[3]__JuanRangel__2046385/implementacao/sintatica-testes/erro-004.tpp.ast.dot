@@ -5,7 +5,7 @@ digraph tree {
     "declaracao";
     "ERROR::1";
     "declaracao";
-    "declaracao_funcao";
+    "declaracao_funcao:3";
     "tipo";
     "INTEIRO";
     "inteiro";
@@ -27,9 +27,9 @@ digraph tree {
     "lista_declaracoes" -> "declaracao";
     "lista_declaracoes" -> "declaracao";
     "declaracao" -> "ERROR::1";
-    "declaracao" -> "declaracao_funcao";
-    "declaracao_funcao" -> "tipo";
-    "declaracao_funcao" -> "cabecalho";
+    "declaracao" -> "declaracao_funcao:3";
+    "declaracao_funcao:3" -> "tipo";
+    "declaracao_funcao:3" -> "cabecalho";
     "tipo" -> "INTEIRO";
     "INTEIRO" -> "inteiro";
     "cabecalho" -> "ID";

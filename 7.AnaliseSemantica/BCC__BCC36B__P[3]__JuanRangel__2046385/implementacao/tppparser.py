@@ -93,7 +93,6 @@ def p_declaracao_variaveis(p):
 
     line = p.lineno(2)
     name = 'declaracao_variaveis:' + str(line)
-    print("nome %s" % name)
     pai = MyNode(name=name, type='DECLARACAO_VARIAVEIS')
     p[0] = pai
 
@@ -124,11 +123,18 @@ def p_declaracao_variaveis_error(p):
 #         (atribuicao)
 
 
+# def p_inicializacao_variaveis(p):
+#     """inicializacao_variaveis : atribuicao"""
+
+#     line = p.lineno(2)
+#     name = 'inicializacao_variaveis:' + str(line)
+#     pai = MyNode(name='inicializacao_variaveis',
+#                  type='INICIALIZACAO_VARIAVEIS')
+#     p[0] = pai
+#     p[1].parent = pai
 def p_inicializacao_variaveis(p):
     """inicializacao_variaveis : atribuicao"""
 
-    line = p.lineno(2)
-    name = 'inicializacao_variaveis:' + str(line)
     pai = MyNode(name='inicializacao_variaveis',
                  type='INICIALIZACAO_VARIAVEIS')
     p[0] = pai
@@ -241,7 +247,6 @@ def p_declaracao_funcao(p):
                         | cabecalho 
     """
     global cabecalho
-    print("P", p[1].name)
     
     try:
         line = p.lineno(2)   
@@ -253,7 +258,6 @@ def p_declaracao_funcao(p):
     
 
     name = 'declaracao_funcao:' + str(line)
-    print("DECLARACAO %s" % name)
     pai = MyNode(name=name, type='DECLARACAO_FUNCAO')
     p[0] = pai
     p[1].parent = pai
@@ -268,8 +272,6 @@ def p_cabecalho(p):
     global cabecalho
     cabecalho = p.lineno(2)
     
-    print("CABECALHO", p.lineno(2))
-
     pai = MyNode(name='cabecalho', type='CABECALHO')
     p[0] = pai
 
@@ -423,7 +425,6 @@ def p_se(p):
           | SE expressao ENTAO corpo SENAO corpo FIM
     """
 
-    print("SE", p[3])
     pai = MyNode(name='se', type='SE')
     p[0] = pai
 
@@ -745,7 +746,7 @@ def p_operador_relacional(p):
         filho = MyNode(name='MAIOR_IGUAL', type='MAIOR_IGUAL', parent=pai)
         filho_sym = MyNode(name=p[1], type='SIMBOLO', parent=filho)
     else:
-        print('Erro operador relacional')
+        print('Erro ao utilizar operador relacional')
 
     p[1] = filho
 

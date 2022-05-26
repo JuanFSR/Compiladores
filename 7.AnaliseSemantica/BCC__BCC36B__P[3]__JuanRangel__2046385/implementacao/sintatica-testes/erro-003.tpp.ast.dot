@@ -2,7 +2,7 @@ digraph tree {
     "programa";
     "lista_declaracoes";
     "declaracao";
-    "declaracao_funcao";
+    "declaracao_funcao:2";
     "tipo";
     "INTEIRO";
     "inteiro";
@@ -21,9 +21,9 @@ digraph tree {
     "fim";
     "programa" -> "lista_declaracoes";
     "lista_declaracoes" -> "declaracao";
-    "declaracao" -> "declaracao_funcao";
-    "declaracao_funcao" -> "tipo";
-    "declaracao_funcao" -> "cabecalho";
+    "declaracao" -> "declaracao_funcao:2";
+    "declaracao_funcao:2" -> "tipo";
+    "declaracao_funcao:2" -> "cabecalho";
     "tipo" -> "INTEIRO";
     "INTEIRO" -> "inteiro";
     "cabecalho" -> "ID";
