@@ -1,0 +1,2 @@
+# Análise Léxica
+Como dito, o compilador será desenvolido para a linguagem T++, a qual foi desenvolvida com propósito educacional, com o objetivo de contribuir para o aprendizado do processo de Análise Léxica. Para a construção de um Analisador Léxico será visto que um autômato finito é utilizado, especificando através de expressões regulares os tokens contidos em uma linguagem, assim como o que pode haver entre esse tokens, como espaços, que não serão considerados, construindo então o sistema de varredura.
