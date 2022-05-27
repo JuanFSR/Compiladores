@@ -5785,4 +5785,5 @@
    yacc.py:3462:shift/reduce conflict for NUM_INTEIRO in state 172 resolved as shift
    yacc.py:3462:shift/reduce conflict for NUM_PONTO_FLUTUANTE in state 172 resolved as shift
    yacc.py:3462:shift/reduce conflict for NUM_NOTACAO_CIENTIFICA in state 172 resolved as shift
-tppparser.py: 352:Erro de sintaxe ao declarar parametro, localizado na linha' 6
+tppparser.py: 204:Erro de sintaxe ao realizar parser da regra de indice, localizado na linha4
+tppparser.py: 204:Erro de sintaxe ao realizar parser da regra de indice, localizado na linha4
