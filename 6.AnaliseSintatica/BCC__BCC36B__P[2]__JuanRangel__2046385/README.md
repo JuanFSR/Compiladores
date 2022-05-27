@@ -1,2 +1,2 @@
 # Análise Sintática
-    Para o desenvolvimento do Analisador Sintático de códigos T++ (linguagem a qual foi criada para ser utilizada como base para a disciplina de Compiladores), foi utilizado a linguagem Python para implementação, em conjunto com algumas bibliotecas como o Ply, Yacc, Anytree, Tree e Graphviz. 
+Para o desenvolvimento do Analisador Sintático de códigos T++ (linguagem a qual foi criada para ser utilizada como base para a disciplina de Compiladores), foi utilizado a linguagem Python para implementação, em conjunto com algumas bibliotecas como o Ply, Yacc, Anytree, Tree e Graphviz. 
