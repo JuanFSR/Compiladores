@@ -1,0 +1,6 @@
+pandas
+numpy
+ply 
+anytree 
+Tree  
+graphviz

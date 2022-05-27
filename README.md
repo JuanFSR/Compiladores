@@ -12,3 +12,9 @@ os lexemas recebidos como entrada, através de um código TPP, e obter os seus r
 tokens, retornando então como saída, uma lista de tokens.
 Já o módulo Yacc (yet another compiler-compiler)  ́e utilizado na implementação do analisador sintático, que utiliza o método de
 análise LALR(1). 
+
+# Bibliotecas
+Para instalar as bibliotecas necessárias para executar o compilador desenvolvido é necessário instalar algumas bibliotecas, e para isso é só executar o comando abaixo na pasta base do projeto "./Compiladores".
+```bash
+    pip install -r requirements.txt 
+```
