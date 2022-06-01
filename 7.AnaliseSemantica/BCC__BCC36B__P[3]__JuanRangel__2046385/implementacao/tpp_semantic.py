@@ -564,6 +564,8 @@ def monta_tabela_simbolos(tree, tabela_simbolos):
 
                     if len(dimensoes) > 0:
                         dimensoes = dimensoes[0]
+                    else:
+                        dimensoes = 0
 
                     tam_dimensao_1 = tam_dimensao_1['tam_dim1'].values
 
@@ -614,7 +616,9 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
 
                 if len(declaracao_variavel) == 0:
                     declaracao_variavel_global = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_variavel) & (tabela_simbolos['escopo'] == 'global') & (tabela_simbolos['init'] == 'N')]
-                    tipo_variavel_novo = declaracao_variavel_global['Tipo'].values[0]
+                    
+                    if len(declaracao_variavel_global) > 0:
+                        tipo_variavel_novo = declaracao_variavel_global['Tipo'].values[0]
                 else:
                     tipo_variavel_novo = declaracao_variavel['Tipo'].values[0]
 
@@ -647,12 +651,14 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
                         tipo_atribuicao = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_variavel_inicializacao) & (tabela_simbolos['escopo'] == 'global') & (tabela_simbolos['init'] == 'N')]
 
                     tipo_atribuicao = tipo_atribuicao['Tipo'].values
-                    tipo_atribuicao = tipo_atribuicao[0]
+                    if len(tipo_atribuicao) > 0:
+                        tipo_atribuicao = tipo_atribuicao[0]
                     
-                    if tipo_variavel_novo == tipo_atribuicao:
-                        status = True
-                    else:
-                        status = False
+                    if len(tipo_variavel_novo)> 0 and len(tipo_atribuicao)> 0:
+                        if tipo_variavel_novo == tipo_atribuicao:
+                            status = True
+                        else:
+                            status = False
                     
                     if status == False:
                         aviso_variavel_string = "Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao)
@@ -669,7 +675,9 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
 
                     if len(declaracao_variavel_valor) == 0:
                         declaracao_variavel_global_valor = tabela_simbolos.loc[(tabela_simbolos['Lexema'] == nome_variavel) & (tabela_simbolos['escopo'] == 'global') & (tabela_simbolos['init'] == 'N')]
-                        tipo_variavel_novo = declaracao_variavel_global_valor['Tipo'].values[0]
+                        
+                        if len(declaracao_variavel_global_valor) > 0:
+                            tipo_variavel_novo = declaracao_variavel_global_valor['Tipo'].values[0]
                     else:
                         tipo_variavel_novo = declaracao_variavel['Tipo'].values[0]
 
@@ -694,7 +702,12 @@ def verifica_tipo_atribuicao(variavel_atual, tipo_variavel, escopo_variavel, ini
                             tipo_variavel_novo = 'flutuante'
 
                     if status == False:
-                        print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao))
+                        aviso_variavel_string = "Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao)
+
+                        if aviso_variavel_string not in avisos:
+                            avisos.append(aviso_variavel_string)
+                            print("Aviso: Atribuição de tipos distintos '%s' %s e '%s' %s" % (nome_variavel, tipo_variavel_novo, nome_variavel_inicializacao, tipo_variavel_inicializacao))
+
 
                 tipo_variavel_inicializacao_retorno = tipo_variavel_inicializacao
     
@@ -720,7 +733,8 @@ def verifica_regras_semanticas(tabela_simbolos):
 
         if len(linhas) > 1:
             linhas = linha[linha['init'] == 'N'].index.tolist()
-            var_verificacao.drop(linhas[0])
+            if len(linhas) > 1:
+                var_verificacao.drop(linhas[0])
         
     # dropar as declarações
     for index, row in variaveis.iterrows():
@@ -1021,6 +1035,8 @@ def main():
     global verificar_nos
     global deixa_proximos_nos
 
+    arg_tabela = argv[2]
+
     escopo = 'global'
 
     tree = tppparser.main()
@@ -1029,9 +1045,11 @@ def main():
     # Montar a tabela de símbolos
     tabela_simbolos = monta_tabela_simbolos(tree, tabela_simbolos)
     verifica_regras_semanticas(tabela_simbolos)
-    print()
-    print("TABELA DE SÍMBOLOS")
-    print(tabela_simbolos)
+
+    if arg_tabela != '--ntabela':
+        print()
+        print("TABELA DE SÍMBOLOS")
+        print(tabela_simbolos)
 
     # Nós que tem o valor de linhas nos nomes
     verificar_nos = ['retorna', 'corpo', 'leia', 'escreva', 'se', 'repita', 'até']
