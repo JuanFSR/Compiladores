@@ -1060,7 +1060,7 @@ def main():
                     'mais', 'chamada_funcao', 'lista_argumentos', 'VIRGULA','virgula', 'lista_parametros', 'vazio',
                     '(', ')', ':', ',', 'FLUTUANTE', 'NUM_PONTO_FLUTUANTE', 'RETORNA', 'ESCREVA', 'SE', 'ENTAO', 'SENAO',
                     'maior','menor', 'REPITA', 'igual', 'menos', 'menor_igual', 'maior_igual', 'operador_logico',
-                    'operador_multiplicacao', 'vezes','id', 'declaracao_variaveis', 'atribuicao', 'operador_relacional', 'MAIOR']
+                    'operador_multiplicacao', 'vezes','id', 'atribuicao', 'operador_relacional', 'MAIOR']
 
     # Verificar retorno (nenhum filho)
     poda_arvore(tree)
@@ -1070,7 +1070,8 @@ def main():
     # Gera imagem da árvore podada
     UniqueDotExporter(tree).to_picture(f"{sys.argv[1]}.prunned.unique.ast.png")
     print(f"Grafo da Árvore Sintática Abstrata foi gerada. \nArquivo de Saída: {sys.argv[1]}.prunned.unique.ast.png")
-
+    
+    return tree, tabela_simbolos
 
 if __name__ == "__main__":
     main()
