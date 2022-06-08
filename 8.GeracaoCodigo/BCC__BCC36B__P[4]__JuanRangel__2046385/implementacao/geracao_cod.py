@@ -1,3 +1,4 @@
+from urllib.request import build_opener
 import pandas as pd
 import tpp_semantic
 import numpy as np
@@ -7,9 +8,12 @@ from llvmlite import binding as llvm
 global modulo
 global arvore_podada
 global tabela_simbolos
+global builder
 
 def gera_codigo(arvore):
     linha = 0
+    global builder
+    global modulo
 
     for no in arvore.children:
         if ('declaracao_variaveis' in no.label):
@@ -30,6 +34,78 @@ def gera_codigo(arvore):
                     variavel_global.initializer = ir.Constant(ir.IntType(32), 0)
                     variavel_global.linkage = "common"
                     variavel_global.align = 4
+            else:
+                # Caso não seja no escopo global, verifico o tipo da variável
+                print("VARIAVEL A SER DECLARADA NA FUNÇÃO MAIN")
+                print(variavel)
+                print('-----------------')
+                print(variavel['valor'])
+                print('-----------------')
+
+                # Aloca a variável com valor zero
+                if ('inteiro' == variavel['Tipo'].values[0]):
+                    variavel_declarada = builder.alloca(ir.IntType(32), name=variavel['Lexema'].values[0])
+                    variavel_declarada.align = 4
+                    
+                    zero_declaracao = ir.Constant(ir.IntType(32), 0)
+                    
+                    builder.store(zero_declaracao, variavel_declarada) 
+
+
+
+                # Defino o retorno da função onde a variável foi declarada
+        elif ('declaracao_funcao' in no.label):
+            linha = no.label.split(':')
+            linha = linha[1]
+
+            # procuro a função declarado nessa linha
+            funcao_encontrada = tabela_simbolos[tabela_simbolos['linha'] == linha]
+            print("------------------------")                
+            print("FUNCAO ENCONTRADA")                
+            print(funcao_encontrada)      
+
+            # # Declara o retorno da função
+            # retorno_funcao = ir.Constant(ir.IntType(32), 0)
+
+            print("TIPO DA FUNÇÃO")
+            print(funcao_encontrada['Tipo'])
+
+            # Cria a função, porém é necessário verificar o tipo da função
+            if ('inteiro' == funcao_encontrada['Tipo'].values[0]):
+                criacao_funcao = ir.FunctionType(ir.IntType(32), ())
+
+            # Declara a função
+            declaracao_funcao = ir.Function(modulo, criacao_funcao, name=funcao_encontrada['Lexema'].values[0])
+            
+            # Declara os blocos de entrada e saída
+            bloco_entrada = declaracao_funcao.append_basic_block('entry')    
+            bloco_saida = declaracao_funcao.append_basic_block('exit')    
+
+            # Adiciona o bloco de entrada
+            builder = ir.IRBuilder(bloco_entrada)
+
+        elif ('retorna' in no.label):
+            linha = no.label.split(':')
+            linha = linha[1]
+
+            retorno_encontrado = tabela_simbolos[tabela_simbolos['Lexema'] == 'retorna']
+            print("RETORNO TABELA")
+            print(retorno_encontrado)
+
+            # Cria o valor de retorno, verificar ainda o retorno correto de cada função
+            if ('inteiro' == retorno_encontrado['Tipo'].values[0]):
+                # Declara o retorno da função
+                retorno_funcao = ir.Constant(ir.IntType(32), 0)
+
+                # Aloca a variável de retorno
+                retorno = builder.alloca(ir.IntType(32), name='retorno')
+                
+                # Atribui o valor zero para o retorno da função
+                builder.store(retorno_funcao, retorno)
+
+                # Defini o retorno da função
+                builder.ret(retorno)
+
 
         print(no.label)
 
