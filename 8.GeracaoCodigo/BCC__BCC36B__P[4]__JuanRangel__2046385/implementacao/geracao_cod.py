@@ -284,12 +284,12 @@ def gera_codigo(arvore):
             
             # Verifico se é um dígito
             if variavel_retornada_encontrada.isdigit():
-                # print("ESTOU RETORNANDO UM DÍGITO")
+                print("ESTOU RETORNANDO UM DÍGITO")
                 retorno_zero = ir.Constant(ir.IntType(32), variavel_retornada)
                 builder.ret(retorno_zero)
             else:
                 # Estou retornando uma variável
-                # print("ESTOU RETORNANDO UMA VARIÁVEL")
+                print("ESTOU RETORNANDO UMA VARIÁVEL")
                 declaracao = encontra_variavel_declarada(variavel_retornada_encontrada)
                 builder.ret(builder.load(declaracao, ""))
         
@@ -474,6 +474,19 @@ def gera_codigo(arvore):
                 # Significa que está escrevendo uma variável
                 variavel_escrever = encontra_variavel_declarada(valor_escrita)
                 builder.call(escreva_inteiro, args=[builder.load(variavel_escrever)])
+
+        elif ('leia' == no.label):
+            print("LEIA A VARIÁVEL", no.children[0].label)
+            print("------------------------------")
+            
+            # Variável onde será guardado o conteúdo lido
+            variavel_leia = no.children[0].label
+
+            variavel_recebe_leitura = encontra_variavel_declarada(variavel_leia)
+            leia_funcao_chamada = builder.call(leia_inteiro, args=[])
+            builder.store(leia_funcao_chamada, variavel_recebe_leitura, align=4)
+
+                
 
 
         print(no.label)
