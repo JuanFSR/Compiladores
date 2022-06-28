@@ -10,33 +10,23 @@ declare i32 @"leiaInteiro"()
 
 declare float @"leiaFlutuante"() 
 
-define i32 @"soma"(i32 %"a", i32 %"b") 
-{
-entry:
-  br label %"exit"
-exit:
-  %".5" = add i32 %"a", %"b"
-  ret i32 %".5"
-}
-
 define i32 @"main"() 
 {
 entry:
-  %"a" = alloca i32, align 4
-  %"b" = alloca i32, align 4
-  %"c" = alloca i32, align 4
-  %".2" = call i32 @"leiaInteiro"()
-  store i32 %".2", i32* %"a", align 4
-  %".4" = call i32 @"leiaInteiro"()
-  store i32 %".4", i32* %"b", align 4
-  %".6" = load i32, i32* %"a"
-  %".7" = load i32, i32* %"b"
-  %".8" = call i32 @"soma"(i32 %".6", i32 %".7")
-  store i32 %".8", i32* %"c"
-  %".10" = load i32, i32* %"c"
-  call void @"escrevaInteiro"(i32 %".10")
+  %"x" = alloca i32, align 4
+  %"y" = alloca float, align 4
+  store float              0x0, float* %"y"
+  store i32 0, i32* %"x"
+  store float              0x0, float* %"y"
+  %".5" = call i32 @"leiaInteiro"()
+  store i32 %".5", i32* %"x", align 4
+  %".7" = call float @"leiaFlutuante"()
+  store float %".7", float* %"y", align 4
+  %".9" = load i32, i32* %"x"
+  call void @"escrevaInteiro"(i32 %".9")
+  %".11" = load float, float* %"y"
+  call void @"escrevaFlutuante"(float %".11")
   br label %"exit"
 exit:
-  %".13" = load i32, i32* %"b"
-  ret i32 %".13"
+  ret i32 0
 }

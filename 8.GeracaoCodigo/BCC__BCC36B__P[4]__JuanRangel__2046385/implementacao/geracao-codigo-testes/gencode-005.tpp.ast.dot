@@ -204,7 +204,7 @@ digraph tree {
     "FECHA_PARENTESE";
     ")";
     "acao";
-    "retorna:19";
+    "retorna:18";
     "RETORNA";
     "retorna";
     "ABRE_PARENTESE";
@@ -428,11 +428,11 @@ digraph tree {
     "var" -> "ID";
     "ID" -> "c";
     "FECHA_PARENTESE" -> ")";
-    "acao" -> "retorna:19";
-    "retorna:19" -> "RETORNA";
-    "retorna:19" -> "ABRE_PARENTESE";
-    "retorna:19" -> "expressao";
-    "retorna:19" -> "FECHA_PARENTESE";
+    "acao" -> "retorna:18";
+    "retorna:18" -> "RETORNA";
+    "retorna:18" -> "ABRE_PARENTESE";
+    "retorna:18" -> "expressao";
+    "retorna:18" -> "FECHA_PARENTESE";
     "RETORNA" -> "retorna";
     "ABRE_PARENTESE" -> "(";
     "expressao" -> "expressao_logica";
