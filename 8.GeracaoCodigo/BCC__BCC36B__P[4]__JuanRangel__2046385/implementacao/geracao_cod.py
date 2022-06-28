@@ -81,7 +81,6 @@ def chama_funcao_chamando_funcao(no_chama_funcao):
 def realiza_operacoes(expressao_esquerda_temp, expressao_direita_temp, operacao_sinal):
     if '+' == operacao_sinal:
         # Realiza soma
-        # print(expressao_esquerda_temp, expressao_direita_temp)
         expressao_resultado = builder.add(expressao_esquerda_temp, expressao_direita_temp)
 
     elif '-' == operacao_sinal:
@@ -140,7 +139,6 @@ def declara_operacoes_condicionais(if_verdade, if_falso, se):
 
     posicao_filho = 0
     for filho in se.children:
-        print(filho.label)
         if filho.label in comparacao_lista:
             filhos.append(se.children[posicao_filho-1].label)
             filhos.append(se.children[posicao_filho+1].label)
@@ -362,10 +360,8 @@ def gera_codigo(arvore):
             if len(no.children) ==1 :
                 # Cria o valor de retorno, verificar ainda o retorno correto de cada função
                 if ('inteiro' == retorno_encontrado['Tipo'].values[0]):
-                    # print("ELE REALMENTE É INTEIRO")
                     for ret in retorno_valor:
                         for variavel_retornada, tipo_retornado in ret.items():
-                            print(f"Variavel retornada {variavel_retornada} tipo retornado {tipo_retornado}")
                             variavel_retornada_encontrada = variavel_retornada
 
                 elif ('float' == retorno_encontrado['Tipo'].values[0]):
@@ -383,7 +379,6 @@ def gera_codigo(arvore):
         
             else:
             # Está retornando uma expressão
-                # print("ESTÁ RETORNANDO UMA EXPRESSÃO")
                 expressao_esquerda, operacao_sinal, expressao_direita = encontra_expressao(no)
                 
                 if (expressao_esquerda.isdigit()):
@@ -505,7 +500,6 @@ def gera_codigo(arvore):
                                 if tipo_variavel_atribuida == 'inteiro':
                                     builder.store(ir.Constant(ir.IntType(32), nome_variavel_atribuida), variavel_declaracao_encontrada)
                                 else:
-                                    print(variavel_declaracao_encontrada)
                                     builder.store(ir.Constant(ir.FloatType(), float(nome_variavel_atribuida)), variavel_declaracao_encontrada)
                             else:
                                 # Significa que o valor que está sendo atribuído é uma variável
