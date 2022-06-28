@@ -1,4 +1,7 @@
 # from urllib.request import build_opener
+from curses.ascii import isdigit
+from unicodedata import name
+from unittest import expectedFailure
 import pandas as pd
 # from pyrsistent import T
 import tpp_semantic
@@ -19,6 +22,7 @@ global variaveis_declaradas
 global nome_escopo_alocada
 global lista_declaracao_funcao
 global lista_escopo
+global parametros_lista
 
 global escreva_inteiro
 global escreva_float
@@ -34,6 +38,64 @@ variaveis_declaradas = []
 nome_escopo_alocada = []
 lista_declaracao_funcao = []
 lista_escopo = []
+parametros_lista = []
+
+def realiza_operacoes(expressao_esquerda_temp, expressao_direita_temp, operacao_sinal):
+    print("-----------------------------")  
+    print("REALIZANDO OPERAÇÃO", operacao_sinal)  
+
+    # Cria variável temporária
+    # retorno_temp = builder.alloca(ir.IntType(32), name='retorno_temp')
+    # retorno_temp.align = 4
+
+    if '+' == operacao_sinal:
+        # Realiza soma
+        print(expressao_esquerda_temp, expressao_direita_temp)
+        expressao_resultado = builder.add(expressao_esquerda_temp, expressao_direita_temp)
+        print("SOMA")
+        # builder.store(retorno_temp, soma_expressao)
+
+    elif '-' == operacao_sinal:
+        # Realiza subtração
+        expressao_resultado = builder.sub(expressao_esquerda_temp, expressao_direita_temp, name='subtracao')
+        print("SUBTRAÇÃO")
+    
+    elif '*' == operacao_sinal:
+        # Realiza multiplicação
+        expressao_resultado = builder.mul(expressao_esquerda_temp, expressao_direita_temp, name='multiplicacao')
+        print("MULTIPLICAÇÃO")
+    
+    elif '/' == operacao_sinal:
+        # Realiza divisão
+        expressao_resultado = builder.sdiv(expressao_esquerda_temp, expressao_direita_temp, name='divisao')
+        print("DIVISAO")
+
+    print("-----------------------------")  
+    return expressao_resultado
+    # builder.ret(expressao_resultado)
+
+
+def encontra_expressao(expressao):
+    operacoes_lista = ['+', '-', '*', '/']
+    operacao = False
+
+    # Em alguma momento será necessário verificar
+    for filhos_expressao in expressao.children:
+        if (len(filhos_expressao.children)) > 0:
+            if filhos_expressao.children[0].label in operacoes_lista:
+                operacao = True
+        else:
+            if filhos_expressao.label in operacoes_lista:
+                operacao = True
+
+    if (operacao):
+        print("AQUI")
+        if len(expressao.children) == 3:
+            print("LEN EXPRESSAO", len(expressao.children[1].children))
+            if len(expressao.children[1].children) == 0:
+                return expressao.children[0].label, expressao.children[1].label, expressao.children[2].label
+            else:
+                return expressao.children[0].label, expressao.children[1].children[0].label, expressao.children[2].label
 
 def procura_comparaca(no_ate):
     repita = no_ate.parent
@@ -134,6 +196,7 @@ def gera_codigo(arvore):
     global escreva_float
     global leia_inteiro
     global leia_float
+    global parametros_lista
 
 
     linha = 0
@@ -216,7 +279,14 @@ def gera_codigo(arvore):
 
             # Cria a função, porém é necessário verificar o tipo da função
             if ('inteiro' == funcao_encontrada['Tipo'].values[0]):
-                criacao_funcao = ir.FunctionType(ir.IntType(32), ())
+                if len(funcao_encontrada['parametros'].values[0]) == 0:
+                    criacao_funcao = ir.FunctionType(ir.IntType(32), ())
+
+                elif len(funcao_encontrada['parametros'].values[0]) == 1:
+                    criacao_funcao = ir.FunctionType(ir.IntType(32), ir.IntType(32))
+                
+                else:
+                    criacao_funcao = ir.FunctionType(ir.IntType(32), [ir.IntType(32), ir.IntType(32)])
 
             # Declara a função
             if funcao_encontrada['Lexema'].values[0] == 'principal':
@@ -225,10 +295,27 @@ def gera_codigo(arvore):
                 lista_declaracao_funcao.append(declaracao_funcao)
             
             else:
+                # Necessário verifica se tem parâmetros
+                print("LINHA TABELA")
+                print(funcao_encontrada['parametros'].values[0])
+
                 declaracao_funcao = ir.Function(modulo, criacao_funcao, name=funcao_encontrada['Lexema'].values[0])
                 lista_escopo.append(funcao_encontrada['Lexema'].values[0])
                 lista_declaracao_funcao.append(declaracao_funcao)
             
+            parametros_funcao = funcao_encontrada['parametros'].values[0]
+            # Passa por todos os argumentos e declara eles como argumentos
+            quantidade_parametros = 0
+            
+            for parametros in parametros_funcao:
+                for param_nome, _ in parametros.items():
+                    print("-----------------------------") 
+                    print("PARAMETRO NOME",param_nome) 
+                    print("-----------------------------") 
+                    declaracao_funcao.args[quantidade_parametros].name = param_nome
+                    quantidade_parametros += 1
+
+            parametros_lista.append(declaracao_funcao)
             # Declara os blocos de entrada e saída
             bloco_entrada = declaracao_funcao.append_basic_block('entry')    
             bloco_saida = declaracao_funcao.append_basic_block('exit')  
@@ -271,115 +358,250 @@ def gera_codigo(arvore):
             builder.position_at_end(topo_bloco_saida)
 
             variavel_retornada_encontrada = ''
-            # Cria o valor de retorno, verificar ainda o retorno correto de cada função
-            if ('inteiro' == retorno_encontrado['Tipo'].values[0]):
-                for ret in retorno_valor:
-                    for variavel_retornada, tipo_retornado in ret.items():
-                        print(f"Variavel retornada {variavel_retornada} tipo retornado {tipo_retornado}")
-                        variavel_retornada_encontrada = variavel_retornada
 
-            elif ('float' == retorno_encontrado['Tipo'].values[0]):
-                pass
+            # Está retornando apena uma variável ou um valor
+            if len(no.children) ==1 :
+                # Cria o valor de retorno, verificar ainda o retorno correto de cada função
+                if ('inteiro' == retorno_encontrado['Tipo'].values[0]):
+                    for ret in retorno_valor:
+                        for variavel_retornada, tipo_retornado in ret.items():
+                            print(f"Variavel retornada {variavel_retornada} tipo retornado {tipo_retornado}")
+                            variavel_retornada_encontrada = variavel_retornada
 
-            
-            # Verifico se é um dígito
-            if variavel_retornada_encontrada.isdigit():
-                print("ESTOU RETORNANDO UM DÍGITO")
-                retorno_zero = ir.Constant(ir.IntType(32), variavel_retornada)
-                builder.ret(retorno_zero)
-            else:
-                # Estou retornando uma variável
-                print("ESTOU RETORNANDO UMA VARIÁVEL")
-                declaracao = encontra_variavel_declarada(variavel_retornada_encontrada)
-                builder.ret(builder.load(declaracao, ""))
+                elif ('float' == retorno_encontrado['Tipo'].values[0]):
+                    pass
+
+                
+                # Verifico se é um dígito
+                if variavel_retornada_encontrada.isdigit():
+                    print("ESTOU RETORNANDO UM DÍGITO")
+                    retorno_zero = ir.Constant(ir.IntType(32), variavel_retornada)
+                    builder.ret(retorno_zero)
+                else:
+                    # Estou retornando uma variável
+                    print("ESTOU RETORNANDO UMA VARIÁVEL")
+                    declaracao = encontra_variavel_declarada(variavel_retornada_encontrada)
+                    builder.ret(builder.load(declaracao, ""))
         
+            else:
+            # Está retornando uma expressão
+                print("ESTÁ RETORNANDO UMA EXPRESSÃO")
+                expressao_esquerda, operacao_sinal, expressao_direita = encontra_expressao(no)
+                print("-----------------------------")
+                print(f"EXPRESSAO {expressao_esquerda} {operacao_sinal} {expressao_direita}")
+                print("-----------------------------")
+
+                # Verificar se as variáveis utilizadas para realizar a soma no retorno foram passadas por parâmetro
+                print("-----------------------------")
+                print("LINHA RETORNO", retorno_valor)
+                print("-----------------------------")
+
+                
+                
+                # if 'a' in retorno_variaveis:
+                #     print("ESTÁÁÁÁÁÁÁÁ", retorno_variaveis)
+
+                if (expressao_esquerda.isdigit()):
+                    # Primeiramente é necessário encontrar as duas variáveis utilizadas na operação
+                    expressao_esquerda_temp = ir.Constant(ir.IntType(32), expressao_esquerda)
+                    expressao_direita_temp = ir.Constant(ir.IntType(32), expressao_direita)
+
+                else:
+                    print("-----------------------------")
+                    print("OS DOIS SÃO VARIÁVEIS")
+                    print("-----------------------------")
+                    
+                    funcao_variaveis_parametro = []
+                    funcao_tabela_simbolos = tabela_simbolos[(tabela_simbolos['Lexema'] == escopo) & (tabela_simbolos['funcao'] == 'S')]
+                    parametros_funcao_tabela_simbolos = funcao_tabela_simbolos['parametros'].values[0]
+
+                    print("LINHA DECLARACAO FUNÇÃO", parametros_funcao_tabela_simbolos)
+
+                    # Adiciona apenas o nome dos parametros recebidos na função em uma lista
+                    for param_tabela_simbolos in parametros_funcao_tabela_simbolos:
+                        for retorno_nome_tabela_simbolos, _ in param_tabela_simbolos.items():
+                            funcao_variaveis_parametro.append(retorno_nome_tabela_simbolos)
+                        
+                    parametros_argumentos = parametros_lista.pop()
+
+                    # Verifica se as variáveis utilizadas na operação são as passadas por parametro
+                    if expressao_esquerda in funcao_variaveis_parametro:
+                        posicao_variavel = funcao_variaveis_parametro.index(expressao_esquerda)
+                        print("POSICAO DO PARAMETRO UTILIZADO NA OPERACAO", posicao_variavel)
+                        expressao_esquerda_temp = parametros_argumentos.args[posicao_variavel]
+                    else:
+                        variavel_expressao_esquerda = encontra_variavel_declarada(expressao_esquerda)
+                        expressao_esquerda_temp = builder.load(variavel_expressao_esquerda, name=str(expressao_esquerda) + '_temp')
+
+                    if expressao_direita in funcao_variaveis_parametro:
+                        posicao_variavel_direita = funcao_variaveis_parametro.index(expressao_direita)
+                        expressao_direita_temp = parametros_argumentos.args[posicao_variavel_direita]
+                    else:
+                        variavel_expressao_direita = encontra_variavel_declarada(expressao_direita)
+                        # Fazer o load das valores em uma variável temporária
+                        expressao_direita_temp = builder.load(variavel_expressao_direita, name=str(expressao_direita) + '_temp')
+
+
+                print("-----------------------------")
+                print(f"DECLARANDO DIGITOS E PROCURANDO VARIAVEIS {expressao_esquerda_temp} {operacao_sinal} {expressao_direita_temp}")
+                print("-----------------------------")
+
+                resultado_op = realiza_operacoes(expressao_esquerda_temp, expressao_direita_temp, operacao_sinal)
+                builder.ret(resultado_op)
+
+
         elif ('acao' == no.label):
             # print(len(no.children), no.children[1].label)
-            
-            if len(no.children) > 1:
-                # Identifica se é uma atribuição
+            if len(no.children) > 1: 
                 if (no.children[1].label == ':='):
-                    
-                    # x := y, representa o nome da variável x
-                    nome_variavel_recebendo = no.children[0].label
+                    # -----------------------------------
+                    # Essa atribuição pode ser a chamada de uma função ou uma operação
+                    # -----------------------------------
+                    # Verificar se o primeiro valor da atribuição é uma função ou não
+                    verifica_nome_funcao = no.children[2].label
 
-                    # representa o nome da variável y
-                    nome_variavel_atribuida = no.children[2].label
-                    
-                    print("-----------------------------")
-                    print("Atribuição de valor para variável")
-                    print("%s := %s" % (nome_variavel_recebendo, nome_variavel_atribuida))
-                    print("-----------------------------")
+                    pesquisa_nome_funcao = tabela_simbolos[(tabela_simbolos['Lexema'] == verifica_nome_funcao) & (tabela_simbolos['funcao'] == 'S')]
 
-                    # Procuro o tipo da variável atribuída
-                    tipo_variavel_atribuida = tabela_simbolos[tabela_simbolos['Lexema'] == nome_variavel_atribuida]
-                    
-                    if len(tipo_variavel_atribuida) > 0:
-                        tipo_variavel_atribuida = tipo_variavel_atribuida['Tipo'].values[0]
-                    else:
-                        # Verifico se é um valor 
-                        if nome_variavel_atribuida.isdigit():
-                            # Verifico se é inteiro ou flutuante
-                            if '.' in nome_variavel_atribuida:
-                                tipo_variavel_atribuida = 'flutuante'
-                            else:
-                                tipo_variavel_atribuida = 'inteiro'
+                    if len(pesquisa_nome_funcao) > 0:
+                        # Significa que é a chamada de uma função
+                        print("-----------------------------")
+                        print("É UMA CHAMADA DE FUNÇÃO")
+                        print("CHAMANDO FUNÇÃO", no.children[2].label)
+                        print("-----------------------------")
 
+                        # Encontra a variável que recebe a chamada de função
+                        recebe_chamada_funcao = encontra_variavel_declarada(no.children[0].label)
 
-                    # print("TIPO VARIAVEL ATRIBUIDA", tipo_variavel_atribuida)
-                    # print("TIPO VARIAVEL DECLARADAS", variaveis_declaradas)
+                        # Encontra função
+                        encontra_chamada_funcao = encontra_funcao_declarada(no.children[2].label)
+                        operador_esquerdo_declaracao = encontra_variavel_declarada(no.children[3].label)
+                        operador_direito_declaracao = encontra_variavel_declarada(no.children[4].label)
 
-                    variavel_declaracao_encontrada = ''
-                    # Primeiro procuro no escopo local e depois no global
-                    if nome_variavel_recebendo+escopo in nome_escopo_alocada:
-                        # Pegar a posição onde se encontra esse valor e acessar as variaveis declaradas
-                        # print("NOME ESCOPO ALOCADA", nome_escopo_alocada)
-                        # print(nome_escopo_alocada.index(nome_variavel_recebendo+escopo))
-
-                        variavel_declaracao_encontrada  = variaveis_declaradas[nome_escopo_alocada.index(nome_variavel_recebendo+escopo)]
-                        # print("Variavel declarada", variavel_declaracao_encontrada)
+                        chamada_funcao = builder.call(encontra_chamada_funcao, [builder.load(operador_esquerdo_declaracao), builder.load(operador_direito_declaracao)])
+                        builder.store(chamada_funcao, recebe_chamada_funcao)
 
                     else:
-                        if nome_variavel_recebendo+'global' in nome_escopo_alocada:
-                            variavel_declaracao_encontrada  = variaveis_declaradas[nome_escopo_alocada.index(nome_variavel_recebendo+'global')]
-                            # Pegar a posição onde se encontra esse valor e acessar as variaveis declaradas
-                            # print("NOME ESCOPO ALOCADA", nome_escopo_alocada)
-                            # print(nome_escopo_alocada.index(nome_variavel_recebendo+'global'))
+
+                        # Identifica se é uma atribuição
+                        if len(no.children) == 3:
                             
-                    # print("VARIAVEL ALOCADA", variavel_declaracao_encontrada, nome_variavel_atribuida)
-                    
+                            # x := y, representa o nome da variável x
+                            nome_variavel_recebendo = no.children[0].label
 
-                    # Verifica se o valor que está sendo atribuído é uma variável
-                    valor_encontrado_atribuindo = encontra_variavel_declarada(nome_variavel_atribuida)
+                            # representa o nome da variável y
+                            nome_variavel_atribuida = no.children[2].label
+                            
+                            print("-----------------------------")
+                            print("Atribuição de valor para variável")
+                            print("%s := %s" % (nome_variavel_recebendo, nome_variavel_atribuida))
+                            print("-----------------------------")
 
-                    if valor_encontrado_atribuindo == '':
-                        # Significa que o valor que está sendo atribuído não é uma variável
-                        builder.store(ir.Constant(ir.IntType(32), nome_variavel_atribuida), variavel_declaracao_encontrada)
-                    else:
-                        # Significa que o valor que está sendo atribuído é uma variável
-                        variavel_temporaria = builder.load(valor_encontrado_atribuindo, "")
-                        builder.store(variavel_temporaria, variavel_declaracao_encontrada)
+                            # Procuro o tipo da variável atribuída
+                            tipo_variavel_atribuida = tabela_simbolos[tabela_simbolos['Lexema'] == nome_variavel_atribuida]
+                            
+                            if len(tipo_variavel_atribuida) > 0:
+                                tipo_variavel_atribuida = tipo_variavel_atribuida['Tipo'].values[0]
+                            else:
+                                # Verifico se é um valor 
+                                if nome_variavel_atribuida.isdigit():
+                                    # Verifico se é inteiro ou flutuante
+                                    if '.' in nome_variavel_atribuida:
+                                        tipo_variavel_atribuida = 'flutuante'
+                                    else:
+                                        tipo_variavel_atribuida = 'inteiro'
 
-            # Gera código da estrutura condicional se/senão
-            else:
-                # print("ENTREEIIIIII SE OU SENAOOOOOOOOOOOOOOOOOO")
-                # Caso o filho seja um 'se', é necessário criar o código se uma estrutura condicional
-                if (no.children[0].label == 'se'):
-                    print("SE")
 
-                    # Tenho que procurar, utilizando o escopo atual, a declaração dessa função
-                    declaracao_funcao_encontrada = encontra_funcao_declarada(escopo)
-                    # print("DECLARACAO FUNCAO", declaracao_funcao_encontrada)
-                    # Crio os blocos de entrada e saída do 'se'
-                    if_verdade_1 = declaracao_funcao_encontrada.append_basic_block('iftrue_1')
-                    if_falso_1 = declaracao_funcao_encontrada.append_basic_block('iffalse_1')
-                    
-                    if_saida_1 = declaracao_funcao_encontrada.append_basic_block('ifend1')
-                    # Adiciono o bloco de saída na pilha
-                    pilha_bloco_saida.append(if_saida_1)
+                            # print("TIPO VARIAVEL ATRIBUIDA", tipo_variavel_atribuida)
+                            # print("TIPO VARIAVEL DECLARADAS", variaveis_declaradas)
 
-                    # Percorrer apenas os filhos do 'se', até encontrar uma compação
-                    declara_operacoes_condicionais(if_verdade_1, if_falso_1, no.children[0])
+                            variavel_declaracao_encontrada = ''
+                            # Primeiro procuro no escopo local e depois no global
+                            if nome_variavel_recebendo+escopo in nome_escopo_alocada:
+                                # Pegar a posição onde se encontra esse valor e acessar as variaveis declaradas
+                                # print("NOME ESCOPO ALOCADA", nome_escopo_alocada)
+                                # print(nome_escopo_alocada.index(nome_variavel_recebendo+escopo))
+
+                                variavel_declaracao_encontrada  = variaveis_declaradas[nome_escopo_alocada.index(nome_variavel_recebendo+escopo)]
+                                # print("Variavel declarada", variavel_declaracao_encontrada)
+
+                            else:
+                                if nome_variavel_recebendo+'global' in nome_escopo_alocada:
+                                    variavel_declaracao_encontrada  = variaveis_declaradas[nome_escopo_alocada.index(nome_variavel_recebendo+'global')]
+                                    # Pegar a posição onde se encontra esse valor e acessar as variaveis declaradas
+                                    # print("NOME ESCOPO ALOCADA", nome_escopo_alocada)
+                                    # print(nome_escopo_alocada.index(nome_variavel_recebendo+'global'))
+                                    
+                            # print("VARIAVEL ALOCADA", variavel_declaracao_encontrada, nome_variavel_atribuida)
+                            
+
+                            # Verifica se o valor que está sendo atribuído é uma variável
+                            valor_encontrado_atribuindo = encontra_variavel_declarada(nome_variavel_atribuida)
+
+                            if valor_encontrado_atribuindo == '':
+                                # Significa que o valor que está sendo atribuído não é uma variável
+                                builder.store(ir.Constant(ir.IntType(32), nome_variavel_atribuida), variavel_declaracao_encontrada)
+                            else:
+                                # Significa que o valor que está sendo atribuído é uma variável
+                                variavel_temporaria = builder.load(valor_encontrado_atribuindo, "")
+                                builder.store(variavel_temporaria, variavel_declaracao_encontrada)
+
+                        # Significa que é uma atribuição com uma operação matemática
+                        else:
+                            # Pegar a variável que estará recebendo a operação
+                            nome_variavel_recebendo = encontra_variavel_declarada(no.children[0].label)
+                            # nome_variavel_load = builder.load(nome_variavel_recebendo)
+
+
+                            # Verifica o primeira parametro da operação, para ver se é uma variável ou um digito
+                            nome_variavel_atribuida_esquerda = no.children[2].label
+                            operacao_sinal = no.children[3].label
+                            nome_variavel_atribuida_direita = no.children[4].label
+                            
+                            # Verifica para variável a esquerda da expressao (esquerda + direita)
+                            if (nome_variavel_atribuida_esquerda.isdigit()):
+                                nome_variavel_atribuida_esquerda_declarada = ir.Constant(ir.IntType(32), name=nome_variavel_atribuida_esquerda)
+                                
+
+                            else:
+                                nome_variavel_atribuida_esquerda_encontrada = encontra_variavel_declarada(nome_variavel_atribuida_esquerda)
+                                nome_variavel_atribuida_esquerda_declarada = builder.load(nome_variavel_atribuida_esquerda_encontrada, name=nome_variavel_atribuida_esquerda + '_temp')
+
+                            # Verifica para variável a direita da expressao (esquerda + direita)
+                            if (nome_variavel_atribuida_direita.isdigit()):
+                                
+                                nome_variavel_atribuida_direita_declarada = ir.Constant(ir.IntType(32), name=str(nome_variavel_atribuida_direita))
+                                
+
+                            else:
+                                nome_variavel_atribuida_direita_declarada_encontrada = encontra_variavel_declarada(nome_variavel_atribuida_direita)
+                                nome_variavel_atribuida_direita_declarada = builder.load(nome_variavel_atribuida_direita_declarada_encontrada, name=nome_variavel_atribuida_direita + '_temp')
+                                
+                            # Chama função que vai declarar a operação
+                            operacao_declarada = realiza_operacoes(nome_variavel_atribuida_esquerda_declarada, nome_variavel_atribuida_direita_declarada, operacao_sinal)
+
+                            builder.store(operacao_declarada, nome_variavel_recebendo)
+
+
+
+                # Gera código da estrutura condicional se/senão
+                else:
+                    # Caso o filho seja um 'se', é necessário criar o código se uma estrutura condicional
+                    if (no.children[0].label == 'se'):
+                        print("SE")
+
+                        # Tenho que procurar, utilizando o escopo atual, a declaração dessa função
+                        declaracao_funcao_encontrada = encontra_funcao_declarada(escopo)
+                        # print("DECLARACAO FUNCAO", declaracao_funcao_encontrada)
+                        # Crio os blocos de entrada e saída do 'se'
+                        if_verdade_1 = declaracao_funcao_encontrada.append_basic_block('iftrue_1')
+                        if_falso_1 = declaracao_funcao_encontrada.append_basic_block('iffalse_1')
+                        
+                        if_saida_1 = declaracao_funcao_encontrada.append_basic_block('ifend1')
+                        # Adiciono o bloco de saída na pilha
+                        pilha_bloco_saida.append(if_saida_1)
+
+                        # Percorrer apenas os filhos do 'se', até encontrar uma compação
+                        declara_operacoes_condicionais(if_verdade_1, if_falso_1, no.children[0])
 
 
         elif ('senão' == no.label):
@@ -434,9 +656,8 @@ def gera_codigo(arvore):
 
             if (comparacao_direita.isdigit()):
                 # Declara o uma constante que será utilizada para comparação
-                # tipo_inteiro = ir.IntType(32)
-                # comparacao_valor = tipo_inteiro(int(comparacao_direita))
                 comparacao_valor = ir.Constant(ir.IntType(32), int(comparacao_direita))
+
                 print("COMPARACAO VALOR", comparacao_valor)
 
             # Procura a variável nas variáveis declaradas para realizar o load
@@ -447,7 +668,7 @@ def gera_codigo(arvore):
 
             
             if ('=' == comparacao_sinal):
-                expressao = builder.icmp_signed('==', comparacao_variavel, comparacao_valor, name='expressao_igualdade')
+                expressao = builder.icmp_signed('==', builder.load(comparacao_variavel), comparacao_valor, name='expressao_igualdade')
             
             # Verifica se a expressão é verdadeira ou não
             builder.cbranch(expressao, loop_inicial, saida)

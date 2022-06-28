@@ -10,6 +10,7 @@ inteiro principal()
     inteiro: c
     inteiro: i
 
+    b := 1
     i := 0
 
     repita
@@ -17,7 +18,7 @@ inteiro principal()
         leia(b)
         c := soma(a, b)
         escreva(c)
-        i := i + 1
+        i := i + b
     até i = 5
 
     retorna(0)
