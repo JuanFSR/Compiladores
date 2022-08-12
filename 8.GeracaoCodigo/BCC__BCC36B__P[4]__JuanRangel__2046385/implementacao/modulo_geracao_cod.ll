@@ -10,23 +10,16 @@ declare i32 @"leiaInteiro"()
 
 declare float @"leiaFlutuante"() 
 
+@"a" = common global i32 0, align 4
 define i32 @"main"() 
 {
 entry:
-  %"x" = alloca i32, align 4
-  %"y" = alloca float, align 4
-  store float              0x0, float* %"y"
-  store i32 0, i32* %"x"
-  store float              0x0, float* %"y"
-  %".5" = call i32 @"leiaInteiro"()
-  store i32 %".5", i32* %"x", align 4
-  %".7" = call float @"leiaFlutuante"()
-  store float %".7", float* %"y", align 4
-  %".9" = load i32, i32* %"x"
-  call void @"escrevaInteiro"(i32 %".9")
-  %".11" = load float, float* %"y"
-  call void @"escrevaFlutuante"(float %".11")
+  %"b" = alloca i32, align 4
+  store i32 10, i32* @"a"
+  %".3" = load i32, i32* @"a"
+  store i32 %".3", i32* %"b"
   br label %"exit"
 exit:
-  ret i32 0
+  %".6" = load i32, i32* %"b"
+  ret i32 %".6"
 }
